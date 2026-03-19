@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors - GoFundMe-inspired warm green palette */
+  --color-primary: #00B964;
+  --color-primary-dark: #009B50;
+  --color-primary-light: #E6F9F0;
+
+  --color-secondary: #FFF8E7;
+  --color-background: #FAFAF7;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F5F5F0;
+
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B7280;
+  --color-text-inverse: #FFFFFF;
+
+  --color-border: #E5E7EB;
+  --color-border-light: #F0F0EC;
+
+  --color-danger: #EF4444;
+  --color-danger-light: #FEF2F2;
+
+  /* Typography */
+  --font-heading: var(--font-dm-serif);
+  --font-body: var(--font-inter);
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.15);
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), Georgia, serif;
+}
