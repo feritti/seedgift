@@ -98,7 +98,7 @@ export function GrowthProjectionModal({
                 tickFormatter={(v) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}`}
               />
               <Tooltip
-                formatter={(value: number) => [formatCurrency(value), "Value"]}
+                formatter={(value) => [formatCurrency(Number(value)), "Value"]}
                 labelFormatter={(year) => `Year ${year}`}
                 contentStyle={{
                   borderRadius: "0.75rem",
