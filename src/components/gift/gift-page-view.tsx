@@ -165,30 +165,79 @@ export function GiftPageView({ giftPage }: { giftPage: GiftPageData }) {
             />
           </div>
 
-          {/* Growth projection */}
-          {amount > 0 && fund && (
-            <div className="mt-6 bg-primary-light rounded-[var(--radius-md)] p-4">
-              <div className="flex items-start gap-3">
-                <TrendingUp className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-primary-dark">
-                    Based on historical {giftPage.fundTicker} (
-                    {giftPage.fundName}) returns, {formatCurrency(amount)} could
-                    grow to{" "}
-                    <span className="font-bold">
-                      {formatCurrency(projectedValue)}
-                    </span>{" "}
-                    in {PROJECTION_YEARS} years*
-                  </p>
-                  <p className="text-xs text-primary-dark/60 mt-1">
-                    *Based on historical avg. return of{" "}
-                    {(fund.avgAnnualReturn * 100).toFixed(1)}% per year. Past
-                    performance does not guarantee future results.
+          {/* Growth projection chart */}
+          {amount > 0 && fund && (() => {
+            const milestones = [
+              { year: 0, label: "Today" },
+              { year: 5, label: "5 yr" },
+              { year: 10, label: "10 yr" },
+              { year: 20, label: "20 yr" },
+              { year: 30, label: "30 yr" },
+            ];
+            const values = milestones.map((m) => ({
+              ...m,
+              value: calculateGrowth(amount, fund.avgAnnualReturn, m.year),
+            }));
+            const maxValue = values[values.length - 1].value;
+
+            return (
+              <div className="mt-6 bg-primary-light rounded-[var(--radius-md)] p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-semibold text-primary-dark">
+                    How {formatCurrency(amount)} could grow
                   </p>
                 </div>
+
+                <div className="flex items-end gap-2 mb-2" style={{ height: 140 }}>
+                  {values.map((m) => {
+                    const barMaxHeight = 100;
+                    const barHeight = Math.max(
+                      Math.round((m.value / maxValue) * barMaxHeight),
+                      6
+                    );
+                    const isLast = m.year === 30;
+                    return (
+                      <div
+                        key={m.year}
+                        className="flex-1 flex flex-col items-center justify-end"
+                      >
+                        <span
+                          className={`text-[11px] font-bold mb-1 ${
+                            isLast ? "text-primary-dark" : "text-primary-dark/70"
+                          }`}
+                        >
+                          {formatCurrency(m.value)}
+                        </span>
+                        <div
+                          className={`w-full rounded-t-md transition-all duration-500 ${
+                            isLast ? "bg-primary" : "bg-primary/40"
+                          }`}
+                          style={{ height: barHeight }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex gap-2">
+                  {values.map((m) => (
+                    <div key={m.year} className="flex-1 text-center">
+                      <span className="text-[11px] text-primary-dark/60">
+                        {m.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-[11px] text-primary-dark/50 mt-3">
+                  *Based on historical avg. return of{" "}
+                  {(fund.avgAnnualReturn * 100).toFixed(1)}% per year. Past
+                  performance does not guarantee future results.
+                </p>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* Giver info */}
