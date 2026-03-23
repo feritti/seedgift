@@ -131,7 +131,7 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
           </div>
         )}
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-wrap gap-3 pt-4">
           <Button type="submit" isLoading={isSubmitting}>
             {mode === "create" ? "Create Gift Page" : "Save Changes"}
           </Button>
@@ -145,7 +145,7 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
               variant="danger"
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="ml-auto"
+              className="sm:ml-auto"
             >
               <Trash2 className="h-4 w-4 mr-1.5" />
               Delete

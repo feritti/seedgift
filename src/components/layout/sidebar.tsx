@@ -1,8 +1,18 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Gift, Heart, Settings, Sprout, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Gift,
+  Heart,
+  Settings,
+  Sprout,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/cn";
 
@@ -13,17 +23,33 @@ const navItems = [
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
-  const pathname = usePathname();
-
+function SidebarContent({
+  pathname,
+  onNavigate,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+}) {
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[260px] bg-surface border-r border-border-light flex flex-col z-40">
+    <>
       {/* Logo */}
-      <div className="p-6 pb-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
+      <div className="p-6 pb-4 flex items-center justify-between">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2"
+          onClick={onNavigate}
+        >
           <Sprout className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold text-text-primary">SeedGift</span>
         </Link>
+        {onNavigate && (
+          <button
+            onClick={onNavigate}
+            className="text-text-secondary hover:text-text-primary cursor-pointer"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -37,6 +63,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium transition-colors",
                 isActive
@@ -61,6 +88,66 @@ export function Sidebar() {
           Sign Out
         </button>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-surface border-b border-border-light flex items-center justify-between px-4 z-50">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <Sprout className="h-6 w-6 text-primary" />
+          <span className="text-lg font-bold text-text-primary">SeedGift</span>
+        </Link>
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="text-text-secondary hover:text-text-primary cursor-pointer"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+      </div>
+
+      {/* Mobile sidebar overlay */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-50"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+      <aside
+        className={cn(
+          "md:hidden fixed left-0 top-0 h-screen w-[260px] bg-surface border-r border-border-light flex flex-col z-50 transition-transform duration-200",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <SidebarContent
+          pathname={pathname}
+          onNavigate={() => setMobileOpen(false)}
+        />
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[260px] bg-surface border-r border-border-light flex-col z-40">
+        <SidebarContent pathname={pathname} />
+      </aside>
+    </>
   );
 }

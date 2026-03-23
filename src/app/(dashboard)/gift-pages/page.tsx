@@ -12,7 +12,7 @@ export default async function GiftPagesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl text-text-primary mb-1">Gift Pages</h1>
           <p className="text-text-secondary">

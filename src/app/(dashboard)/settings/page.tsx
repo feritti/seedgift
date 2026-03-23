@@ -64,7 +64,7 @@ export default function SettingsPage() {
 
         <Card variant={stripeOnboarded ? "featured" : "default"}>
           <CardContent>
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-text-primary mb-1 font-[family-name:var(--font-body)]">
                   Payment Setup

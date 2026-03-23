@@ -28,7 +28,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -41,7 +41,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop auth buttons */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 Sign In
@@ -54,7 +54,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-surface-muted transition-colors cursor-pointer"
+            className="lg:hidden p-2 rounded-lg hover:bg-surface-muted transition-colors cursor-pointer"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -69,7 +69,7 @@ export function Navbar() {
         {/* Mobile menu */}
         <div
           className={cn(
-            "md:hidden overflow-hidden transition-[max-height] duration-300",
+            "lg:hidden overflow-hidden transition-[max-height] duration-300",
             mobileMenuOpen ? "max-h-64" : "max-h-0"
           )}
         >
