@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     const account = await stripe.accounts.create({
       type: "standard",
       email: session.user.email,
+      business_type: "individual",
     });
     stripeAccountId = account.id;
 
