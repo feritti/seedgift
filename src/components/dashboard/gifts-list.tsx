@@ -29,9 +29,8 @@ export function GiftsList({ gifts }: { gifts: GiftItem[] }) {
   const selectedGift = gifts.find((g) => g.id === thankYouModal);
 
   const handleSendThankYou = async () => {
-    if (!thankYouModal) return;
-    // Mark as thanked in DB (email sending requires Resend setup)
-    await markGiftThanked(thankYouModal);
+    if (!thankYouModal || !thankYouMessage.trim()) return;
+    await markGiftThanked(thankYouModal, thankYouMessage);
     setThankYouModal(null);
     setThankYouMessage("");
     window.location.reload();
@@ -144,7 +143,7 @@ export function GiftsList({ gifts }: { gifts: GiftItem[] }) {
               </Button>
               <Button onClick={handleSendThankYou}>
                 <Send className="h-4 w-4 mr-1.5" />
-                Mark as Thanked
+                Send Thank You
               </Button>
             </div>
           </div>
