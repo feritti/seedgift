@@ -35,9 +35,12 @@ export async function POST(request: NextRequest) {
   // Create a Stripe Connect account if one doesn't exist
   if (!stripeAccountId) {
     const account = await stripe.accounts.create({
-      type: "standard",
+      type: "express",
       email: session.user.email,
       business_type: "individual",
+      capabilities: {
+        transfers: { requested: true },
+      },
     });
     stripeAccountId = account.id;
 
