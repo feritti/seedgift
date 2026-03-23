@@ -26,7 +26,7 @@ export function HeroSection() {
           {/* CTA */}
           <Link href="/signup">
             <Button size="lg" className="text-lg px-10 py-4">
-              Create Child&apos;s Gift Page
+              Create a Gift Page
             </Button>
           </Link>
 
