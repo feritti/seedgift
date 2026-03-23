@@ -38,8 +38,8 @@ export function HowItWorksSection() {
           {steps.map((step, index) => (
             <div key={step.title} className="text-center">
               {/* Step number + icon */}
-              <div className="relative mx-auto mb-6">
-                <div className="w-16 h-16 rounded-full bg-primary-light flex items-center justify-center mx-auto">
+              <div className="relative w-16 mx-auto mb-6">
+                <div className="w-16 h-16 rounded-full bg-primary-light flex items-center justify-center">
                   <step.icon className="h-7 w-7 text-primary" />
                 </div>
                 <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-text-inverse text-sm font-bold flex items-center justify-center">
