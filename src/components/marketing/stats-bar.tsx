@@ -1,7 +1,7 @@
 const stats = [
   { value: "$2.4M+", label: "Gifted to children" },
   { value: "12,000+", label: "Gifts sent" },
-  { value: "4,800+", label: "Children invested in" },
+  { value: "4,800+", label: "Families with gift pages" },
 ];
 
 export function StatsBar() {

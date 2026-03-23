@@ -32,7 +32,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Plant a financial seed for a child you love. Give gifts that grow.
+              Plant a financial seed for a child you love. Give gifts that last.
             </p>
           </div>
 

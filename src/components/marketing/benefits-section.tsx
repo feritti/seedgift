@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 const benefits = [
   {
     icon: Sparkles,
-    title: "Compound Growth",
+    title: "Build Their Future",
     description:
-      "A $50 gift invested at birth could grow to over $900 by age 18. Time is the most powerful ingredient in investing.",
+      "A $50 gift saved at birth has decades to grow. Time is the most powerful ingredient in building a child's financial foundation.",
     variant: "featured" as const,
   },
   {

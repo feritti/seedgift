@@ -7,12 +7,12 @@ export const FAQ_DATA: FaqItem[] = [
   {
     question: "How does SeedGift work?",
     answer:
-      "A parent creates a gift page for their child, choosing an investment fund and event. They share the link with family and friends, who can then send financial gifts. The funds are sent directly to the parent via Stripe, who can then invest them in the chosen fund.",
+      "A parent creates a gift page for their child and shares the link with family and friends. Loved ones visit the page, choose a gift amount, and pay. The funds are sent directly to the parent's bank account via Stripe. SeedGift is a gifting platform — we collect and deliver monetary gifts. Parents decide independently how to save or invest the funds.",
   },
   {
-    question: "Is the money actually invested automatically?",
+    question: "Does SeedGift invest the money?",
     answer:
-      "Not yet — SeedGift handles the gifting and collection. Parents receive the funds via Stripe and invest them in their preferred custodial brokerage account. We show projected growth based on historical returns to help gift-givers understand the impact of their gift.",
+      "No. SeedGift is a gifting and payment collection platform, not an investment service. Parents receive gift funds directly in their bank account and choose independently how to save or invest — whether that's a 529 plan, a UTMA/UGMA custodial account, or a brokerage account. We do not manage, hold, or invest funds on anyone's behalf.",
   },
   {
     question: "What are the fees?",
@@ -22,7 +22,7 @@ export const FAQ_DATA: FaqItem[] = [
   {
     question: "Is this safe and secure?",
     answer:
-      "Yes. All payments are processed through Stripe, a PCI-compliant payment processor used by millions of businesses. We never store credit card information on our servers.",
+      "Yes. All payments are processed through Stripe, a PCI-compliant payment processor trusted by millions of businesses worldwide. Funds go directly to the parent's verified bank account — SeedGift never holds or stores your money. We never store credit card information on our servers.",
   },
   {
     question: "Can anyone send a gift?",
