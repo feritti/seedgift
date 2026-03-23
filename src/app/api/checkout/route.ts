@@ -150,10 +150,12 @@ export async function POST(request: NextRequest) {
     cancel_url: `${appUrl}/gift/${giftPage.slug}`,
   };
 
-  // If the parent has Stripe Connect, route payment to them
+  // If the parent has Stripe Connect, route payment to them with 3% platform fee
   const parentStripeAccount = giftPage.users?.stripe_account_id;
   if (parentStripeAccount && giftPage.users?.stripe_onboarded) {
+    const applicationFee = Math.round(amountCents * 0.03);
     sessionParams.payment_intent_data = {
+      application_fee_amount: applicationFee,
       transfer_data: {
         destination: parentStripeAccount,
       },
