@@ -97,3 +97,31 @@ export function thankYouEmail({
     <p style="font-size:14px;color:#6B7280;margin:0;">— ${parentName}, via SeedGift</p>
   `);
 }
+
+export function contactFormEmail({
+  name,
+  email,
+  subject,
+  message,
+}: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}): string {
+  return layout(`
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">New Contact Form Submission</h1>
+    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">Someone reached out via the SeedGift contact form.</p>
+    <div style="background:#F5F5F0;border-radius:8px;padding:20px;margin-bottom:24px;">
+      <table style="width:100%;font-size:15px;color:#1A1A1A;">
+        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;width:80px;">From</td><td style="padding:6px 0;font-weight:600;">${name}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;">Email</td><td style="padding:6px 0;"><a href="mailto:${email}" style="color:#00B964;text-decoration:none;">${email}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;">Subject</td><td style="padding:6px 0;">${subject}</td></tr>
+      </table>
+    </div>
+    <div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:20px;">
+      <p style="font-size:15px;color:#1A1A1A;margin:0;line-height:1.6;white-space:pre-wrap;">${message}</p>
+    </div>
+    <p style="font-size:13px;color:#6B7280;margin:16px 0 0;">Reply directly to this email to respond to ${name}.</p>
+  `);
+}
