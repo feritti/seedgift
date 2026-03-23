@@ -41,7 +41,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     <dialog
       ref={dialogRef}
       className={cn(
-        "rounded-[var(--radius-xl)] bg-surface p-0 shadow-modal backdrop:bg-black/50 max-w-lg w-full",
+        "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-xl)] bg-surface p-0 shadow-modal backdrop:bg-black/50 max-w-lg w-[calc(100%-2rem)] mx-auto",
         className
       )}
       onClick={(e) => {
