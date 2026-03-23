@@ -62,7 +62,7 @@ export function GiftsList({ gifts }: { gifts: GiftItem[] }) {
         {gifts.map((gift) => (
           <Card key={gift.id}>
             <CardContent>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
                     <Heart className="h-5 w-5 text-primary" />
