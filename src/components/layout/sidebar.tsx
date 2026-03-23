@@ -82,9 +82,8 @@ function SidebarContent({
               key={item.href}
               href={item.href}
               onClick={onNavigate}
-              title={collapsed ? item.label : undefined}
               className={cn(
-                "flex items-center rounded-[var(--radius-md)] text-sm font-medium transition-colors",
+                "group relative flex items-center rounded-[var(--radius-md)] text-sm font-medium transition-colors",
                 collapsed
                   ? "justify-center px-2 py-2.5"
                   : "gap-3 px-3 py-2.5",
@@ -95,6 +94,11 @@ function SidebarContent({
             >
               <item.icon className="h-5 w-5 shrink-0" />
               {!collapsed && item.label}
+              {collapsed && (
+                <span className="absolute left-full ml-2 px-2.5 py-1 rounded-[var(--radius-sm)] bg-text-primary text-text-inverse text-xs font-medium whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                  {item.label}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -104,14 +108,18 @@ function SidebarContent({
       <div className="p-3 border-t border-border-light">
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          title={collapsed ? "Sign Out" : undefined}
           className={cn(
-            "flex items-center rounded-[var(--radius-md)] text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors w-full cursor-pointer",
+            "group relative flex items-center rounded-[var(--radius-md)] text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors w-full cursor-pointer",
             collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"
           )}
         >
           <LogOut className="h-5 w-5 shrink-0" />
           {!collapsed && "Sign Out"}
+          {collapsed && (
+            <span className="absolute left-full ml-2 px-2.5 py-1 rounded-[var(--radius-sm)] bg-text-primary text-text-inverse text-xs font-medium whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+              Sign Out
+            </span>
+          )}
         </button>
       </div>
     </>
