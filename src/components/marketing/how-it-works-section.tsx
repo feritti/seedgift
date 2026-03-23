@@ -15,9 +15,9 @@ const steps = [
   },
   {
     icon: TrendingUp,
-    title: "Watch It Grow",
+    title: "Receive & Save",
     description:
-      "Collect gifts directly to your bank account via Stripe. Invest them in the fund you chose and watch compound interest work its magic.",
+      "Collect gifts directly to your bank account via Stripe. Deposit them into your child's savings or brokerage account and let time do the work.",
   },
 ];
 
