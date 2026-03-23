@@ -30,6 +30,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Sync user to Supabase on every sign-in
       if (user.email) {
         const db = createServerClient();
+
+        // Check if user already exists
+        const { data: existingUser } = await db
+          .from("users")
+          .select("id")
+          .eq("email", user.email)
+          .single();
+
         await db.from("users").upsert(
           {
             email: user.email,
@@ -38,6 +46,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
           { onConflict: "email" }
         );
+
+        // Create a demo gift page for brand new users
+        if (!existingUser) {
+          const { data: newUser } = await db
+            .from("users")
+            .select("id")
+            .eq("email", user.email)
+            .single();
+
+          if (newUser) {
+            const slug = `demo-child-birthday-${Math.random().toString(36).slice(2, 8)}`;
+            await db.from("gift_pages").insert({
+              user_id: newUser.id,
+              slug,
+              child_name: "Demo Child",
+              child_dob: "2022-06-15",
+              event_name: "Birthday",
+              fund_ticker: "VOO",
+              fund_name: "S&P 500 Index",
+              status: "active",
+            });
+          }
+        }
       }
       return true;
     },
