@@ -125,14 +125,14 @@ export default async function DashboardPage() {
                 href="/gift-pages/new"
               />
               <ChecklistItem
-                done={hasStripe}
-                label="Connect Stripe to receive payments"
-                href="/settings"
-              />
-              <ChecklistItem
                 done={hasGifts}
                 label="Share your link & receive your first gift"
                 href="/gift-pages"
+              />
+              <ChecklistItem
+                done={hasStripe}
+                label="Connect Stripe to receive payments"
+                href="/settings"
               />
             </div>
           </CardContent>
