@@ -32,10 +32,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
   }
 
-  // Origin check (basic CSRF protection)
+  // Origin check (CSRF protection)
   const origin = request.headers.get("origin");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
-  if (origin && origin !== appUrl) {
+  const allowedOrigins = [appUrl, appUrl.replace("://www.", "://")];
+  if (!origin || !allowedOrigins.includes(origin)) {
     return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
   }
 
