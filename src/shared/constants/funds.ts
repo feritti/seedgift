@@ -3,7 +3,7 @@ export interface Fund {
   name: string;
   description: string;
   avgAnnualReturn: number; // decimal, e.g., 0.10 for 10%
-  category: "index" | "broad-market" | "crypto";
+  category: "index" | "broad-market" | "crypto" | "savings";
 }
 
 export const FUNDS: Fund[] = [
@@ -14,6 +14,7 @@ export const FUNDS: Fund[] = [
   { ticker: "SCHB", name: "Schwab US Broad Market", description: "Similar to VTI — a low-cost way to own a broad slice of the US market.", avgAnnualReturn: 0.098, category: "broad-market" },
   { ticker: "BTC", name: "Bitcoin", description: "The original cryptocurrency. High growth potential but also higher volatility.", avgAnnualReturn: 0.15, category: "crypto" },
   { ticker: "ETH", name: "Ethereum", description: "A leading crypto platform powering smart contracts and decentralized apps.", avgAnnualReturn: 0.14, category: "crypto" },
+  { ticker: "529", name: "529 College Savings Plan", description: "A tax-advantaged account designed for education expenses — from K-12 tuition to college and beyond.", avgAnnualReturn: 0.07, category: "savings" },
 ];
 
 export function getFundByTicker(ticker: string): Fund | undefined {

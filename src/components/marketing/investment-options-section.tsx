@@ -11,6 +11,7 @@ const categoryLabel: Record<Fund["category"], string> = {
   index: "Index Fund",
   "broad-market": "Index Fund",
   crypto: "Crypto",
+  savings: "College Savings",
 };
 
 export function InvestmentOptionsSection() {
@@ -28,7 +29,7 @@ export function InvestmentOptionsSection() {
           </h2>
           <p className="text-text-secondary max-w-2xl mx-auto text-lg">
             Parents pick the investment that fits their goals — from broad
-            market index funds to crypto.
+            market index funds to crypto and college savings.
           </p>
         </div>
 
