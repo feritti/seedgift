@@ -8,6 +8,7 @@ import {
   Gift,
   Heart,
   Settings,
+  BookOpen,
   Sprout,
   LogOut,
   Menu,
@@ -22,6 +23,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Gift Pages", href: "/gift-pages", icon: Gift },
   { label: "Gifts", href: "/gifts", icon: Heart },
+  { label: "Resources", href: "/resources", icon: BookOpen },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
