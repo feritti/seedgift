@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import { createServerClient } from "@/lib/db";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -84,7 +85,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (data) {
           session.user.id = data.id;
-          session.user.stripeAccountId = data.stripe_account_id;
           session.user.stripeOnboarded = data.stripe_onboarded;
         }
       }

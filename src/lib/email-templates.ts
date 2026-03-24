@@ -1,3 +1,13 @@
+/** Escape HTML special characters to prevent XSS in emails */
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function layout(content: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -33,16 +43,16 @@ export function giftReceiptEmail({
   fundName: string;
 }): string {
   return layout(`
-    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">Thank you, ${giverName}!</h1>
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">Thank you, ${esc(giverName)}!</h1>
     <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">Your gift has been received and is ready to grow.</p>
     <div style="background:#E6F9F0;border-radius:8px;padding:20px;margin-bottom:24px;">
       <table style="width:100%;font-size:15px;color:#1A1A1A;">
-        <tr><td style="padding:6px 0;color:#6B7280;">Gift for</td><td style="padding:6px 0;text-align:right;font-weight:600;">${childName}'s ${eventName}</td></tr>
-        <tr><td style="padding:6px 0;color:#6B7280;">Amount</td><td style="padding:6px 0;text-align:right;font-weight:600;">${amount}</td></tr>
-        <tr><td style="padding:6px 0;color:#6B7280;">Invested in</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fundName}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Gift for</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(childName)}'s ${esc(eventName)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Amount</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(amount)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Invested in</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(fundName)}</td></tr>
       </table>
     </div>
-    <p style="font-size:14px;color:#6B7280;margin:0;">This gift will be invested and left to compound over time — a real head start for ${childName}'s future.</p>
+    <p style="font-size:14px;color:#6B7280;margin:0;">This gift will be invested and left to compound over time — a real head start for ${esc(childName)}'s future.</p>
   `);
 }
 
@@ -60,15 +70,15 @@ export function newGiftNotificationEmail({
   note: string | null;
 }): string {
   const noteHtml = note
-    ? `<div style="background:#F5F5F0;border-radius:8px;padding:16px;margin:16px 0;font-style:italic;color:#1A1A1A;font-size:14px;">"${note}"</div>`
+    ? `<div style="background:#F5F5F0;border-radius:8px;padding:16px;margin:16px 0;font-style:italic;color:#1A1A1A;font-size:14px;">"${esc(note)}"</div>`
     : "";
 
   return layout(`
-    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">Great news, ${parentName}!</h1>
-    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">${giverName} just sent a gift for ${childName}.</p>
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">Great news, ${esc(parentName)}!</h1>
+    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">${esc(giverName)} just sent a gift for ${esc(childName)}.</p>
     <div style="background:#E6F9F0;border-radius:8px;padding:20px;text-align:center;margin-bottom:16px;">
-      <p style="font-size:32px;font-weight:700;color:#00B964;margin:0;">${amount}</p>
-      <p style="font-size:14px;color:#009B50;margin:4px 0 0;">from ${giverName}</p>
+      <p style="font-size:32px;font-weight:700;color:#00B964;margin:0;">${esc(amount)}</p>
+      <p style="font-size:14px;color:#009B50;margin:4px 0 0;">from ${esc(giverName)}</p>
     </div>
     ${noteHtml}
     <p style="font-size:14px;color:#6B7280;margin:16px 0 0;">
@@ -89,12 +99,12 @@ export function thankYouEmail({
   message: string;
 }): string {
   return layout(`
-    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">A message from ${parentName}</h1>
-    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">Regarding your gift for ${childName}:</p>
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">A message from ${esc(parentName)}</h1>
+    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">Regarding your gift for ${esc(childName)}:</p>
     <div style="background:#F5F5F0;border-radius:8px;padding:20px;margin-bottom:24px;">
-      <p style="font-size:15px;color:#1A1A1A;margin:0;line-height:1.6;white-space:pre-wrap;">${message}</p>
+      <p style="font-size:15px;color:#1A1A1A;margin:0;line-height:1.6;white-space:pre-wrap;">${esc(message)}</p>
     </div>
-    <p style="font-size:14px;color:#6B7280;margin:0;">— ${parentName}, via SeedGift</p>
+    <p style="font-size:14px;color:#6B7280;margin:0;">— ${esc(parentName)}, via SeedGift</p>
   `);
 }
 
@@ -114,14 +124,14 @@ export function contactFormEmail({
     <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">Someone reached out via the SeedGift contact form.</p>
     <div style="background:#F5F5F0;border-radius:8px;padding:20px;margin-bottom:24px;">
       <table style="width:100%;font-size:15px;color:#1A1A1A;">
-        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;width:80px;">From</td><td style="padding:6px 0;font-weight:600;">${name}</td></tr>
-        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;">Email</td><td style="padding:6px 0;"><a href="mailto:${email}" style="color:#00B964;text-decoration:none;">${email}</a></td></tr>
-        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;">Subject</td><td style="padding:6px 0;">${subject}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;width:80px;">From</td><td style="padding:6px 0;font-weight:600;">${esc(name)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;">Email</td><td style="padding:6px 0;"><a href="mailto:${esc(email)}" style="color:#00B964;text-decoration:none;">${esc(email)}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;vertical-align:top;">Subject</td><td style="padding:6px 0;">${esc(subject)}</td></tr>
       </table>
     </div>
     <div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:20px;">
-      <p style="font-size:15px;color:#1A1A1A;margin:0;line-height:1.6;white-space:pre-wrap;">${message}</p>
+      <p style="font-size:15px;color:#1A1A1A;margin:0;line-height:1.6;white-space:pre-wrap;">${esc(message)}</p>
     </div>
-    <p style="font-size:13px;color:#6B7280;margin:16px 0 0;">Reply directly to this email to respond to ${name}.</p>
+    <p style="font-size:13px;color:#6B7280;margin:16px 0 0;">Reply directly to this email to respond to ${esc(name)}.</p>
   `);
 }

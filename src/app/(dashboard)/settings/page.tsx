@@ -11,22 +11,24 @@ import { Badge } from "@/components/ui/badge";
 export default function SettingsPage() {
   const { data: session } = useSession();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   const stripeOnboarded = (session?.user as { stripeOnboarded?: boolean })?.stripeOnboarded ?? false;
 
   const handleStripeConnect = async () => {
     setIsConnecting(true);
+    setConnectError(null);
     try {
       const res = await fetch("/api/stripe/connect", { method: "POST" });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Something went wrong");
+        setConnectError(data.error || "Something went wrong. Please try again.");
         setIsConnecting(false);
       }
     } catch {
-      alert("Something went wrong");
+      setConnectError("Something went wrong. Please try again.");
       setIsConnecting(false);
     }
   };
@@ -92,6 +94,12 @@ export default function SettingsPage() {
                     gift payments. This takes about 5 minutes.
                   </span>
                 </div>
+                {connectError && (
+                  <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 rounded-[var(--radius-md)] p-3 mb-4">
+                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <span>{connectError}</span>
+                  </div>
+                )}
                 <Button onClick={handleStripeConnect} isLoading={isConnecting}>
                   <ExternalLink className="h-4 w-4 mr-1.5" />
                   Connect Stripe Account
