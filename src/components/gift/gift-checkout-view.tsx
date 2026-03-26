@@ -25,7 +25,9 @@ import type { GiftPageData, PublicData } from "./gift-page-view";
 
 const PRESET_AMOUNTS = [15, 25, 50, 100];
 const PROJECTION_YEARS = 30;
-type TipOption = "15" | "20" | "25" | "custom" | "none";
+const TIP_MIN = 0;
+const TIP_MAX = 30;
+const TIP_DEFAULT = 15;
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -44,8 +46,7 @@ export function GiftCheckoutView({
   const [isCustom, setIsCustom] = useState(false);
 
   // Tip
-  const [tipOption, setTipOption] = useState<TipOption>("15");
-  const [customTip, setCustomTip] = useState("");
+  const [tipPercent, setTipPercent] = useState(TIP_DEFAULT);
 
   // Giver info
   const [giverName, setGiverName] = useState("");
@@ -62,12 +63,7 @@ export function GiftCheckoutView({
     ? calculateGrowth(amount, fund.avgAnnualReturn, PROJECTION_YEARS)
     : 0;
 
-  const tipAmount =
-    tipOption === "none"
-      ? 0
-      : tipOption === "custom"
-        ? parseFloat(customTip) || 0
-        : Math.round(amount * (parseInt(tipOption) / 100) * 100) / 100;
+  const tipAmount = Math.round(amount * (tipPercent / 100) * 100) / 100;
   const grandTotal = amount + tipAmount;
 
   const handleGift = async () => {
@@ -224,72 +220,65 @@ export function GiftCheckoutView({
           )}
         </div>
 
-        {/* Tip section */}
+        {/* Tip section — slider */}
         {amount > 0 && (
           <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
-            <div className="mb-3">
-              <h3 className="text-sm font-semibold text-text-primary">Tip SeedGift</h3>
-              <p className="text-xs text-text-secondary mt-0.5">
-                SeedGift doesn&apos;t charge fees. An optional tip helps us keep the
-                platform free for families.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2 mb-3">
-              {(
-                [
-                  { key: "15" as TipOption, label: "15%" },
-                  { key: "20" as TipOption, label: "20%" },
-                  { key: "25" as TipOption, label: "25%" },
-                  { key: "none" as TipOption, label: "None" },
-                ] as const
-              ).map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => {
-                    setTipOption(opt.key);
-                    setCustomTip("");
-                  }}
-                  className={`py-2.5 rounded-[var(--radius-md)] text-center text-xs font-semibold transition-colors cursor-pointer ${
-                    tipOption === opt.key
-                      ? "bg-primary text-text-inverse"
-                      : "bg-surface-muted text-text-primary hover:bg-primary-light"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setTipOption("custom")}
-              className={`w-full text-left text-xs font-medium px-3 py-2 rounded-[var(--radius-md)] transition-colors cursor-pointer ${
-                tipOption === "custom"
-                  ? "bg-primary-light text-primary-dark"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              Enter custom tip
-            </button>
-
-            {tipOption === "custom" && (
-              <div className="mt-2">
-                <Input
-                  placeholder="Custom tip amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={customTip}
-                  onChange={(e) => setCustomTip(e.target.value)}
-                />
+            <div className="flex items-start justify-between mb-1">
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary">
+                  Tip SeedGift
+                </h3>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  An optional tip helps keep the platform free.
+                </p>
               </div>
-            )}
+              <div className="text-right shrink-0 ml-4">
+                <p className="text-lg font-bold text-text-primary leading-tight">
+                  {formatCurrency(tipAmount)}
+                </p>
+                <p className="text-xs text-text-secondary">{tipPercent}%</p>
+              </div>
+            </div>
 
-            {tipAmount > 0 && (
-              <p className="text-xs text-text-secondary mt-2">
-                Your tip: {formatCurrency(tipAmount)}
-              </p>
-            )}
+            {/* Slider */}
+            <div className="mt-4 relative">
+              <input
+                type="range"
+                min={TIP_MIN}
+                max={TIP_MAX}
+                step={1}
+                value={tipPercent}
+                onChange={(e) => setTipPercent(parseInt(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-surface-muted
+                  [&::-webkit-slider-thumb]:appearance-none
+                  [&::-webkit-slider-thumb]:h-6
+                  [&::-webkit-slider-thumb]:w-6
+                  [&::-webkit-slider-thumb]:rounded-full
+                  [&::-webkit-slider-thumb]:bg-primary
+                  [&::-webkit-slider-thumb]:shadow-md
+                  [&::-webkit-slider-thumb]:border-2
+                  [&::-webkit-slider-thumb]:border-white
+                  [&::-webkit-slider-thumb]:cursor-pointer
+                  [&::-webkit-slider-thumb]:transition-transform
+                  [&::-webkit-slider-thumb]:hover:scale-110
+                  [&::-moz-range-thumb]:h-6
+                  [&::-moz-range-thumb]:w-6
+                  [&::-moz-range-thumb]:rounded-full
+                  [&::-moz-range-thumb]:bg-primary
+                  [&::-moz-range-thumb]:shadow-md
+                  [&::-moz-range-thumb]:border-2
+                  [&::-moz-range-thumb]:border-white
+                  [&::-moz-range-thumb]:cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${(tipPercent / TIP_MAX) * 100}%, var(--color-surface-muted) ${(tipPercent / TIP_MAX) * 100}%, var(--color-surface-muted) 100%)`,
+                }}
+              />
+              <div className="flex justify-between text-xs text-text-secondary mt-1.5">
+                <span>0%</span>
+                <span>15%</span>
+                <span>30%</span>
+              </div>
+            </div>
           </div>
         )}
 
