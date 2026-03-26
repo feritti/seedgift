@@ -87,7 +87,7 @@ function ProgressBar({ raised, goal }: { raised: number; goal: number }) {
   );
 }
 
-function ShareButtons({ slug }: { slug: string }) {
+function ShareButtons({ slug, childName }: { slug: string; childName: string }) {
   const [copied, setCopied] = useState(false);
   const url = `https://www.seedgift.xyz/gift/${slug}`;
 
@@ -107,18 +107,11 @@ function ShareButtons({ slug }: { slug: string }) {
         {copied ? "Copied!" : "Copy Link"}
       </button>
       <a
-        href={`sms:&body=Help invest in a child's future! ${url}`}
+        href={`sms:&body=${encodeURIComponent(`Invest in ${childName}'s future! ${url}`)}`}
         className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors"
       >
         <Share2 className="h-3.5 w-3.5" />
         Text
-      </a>
-      <a
-        href={`mailto:?subject=Gift for a child's future&body=Help invest in a child's future! ${url}`}
-        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors"
-      >
-        <Share2 className="h-3.5 w-3.5" />
-        Email
       </a>
     </div>
   );
@@ -175,7 +168,7 @@ export function GiftPageView({
             <Sprout className="h-5 w-5 text-primary" />
             <span className="text-base font-bold text-text-primary">SeedGift</span>
           </Link>
-          <ShareButtons slug={giftPage.slug} />
+          <ShareButtons slug={giftPage.slug} childName={giftPage.childName} />
         </div>
       </header>
 
