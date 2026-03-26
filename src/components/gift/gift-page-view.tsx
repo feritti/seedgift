@@ -16,7 +16,6 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { formatCurrency } from "@/shared/utils/growth-calculator";
 import { getFundByTicker } from "@/shared/constants/funds";
@@ -79,10 +78,10 @@ function getFirstName(name: string): string {
 function ProgressBar({ raised, goal }: { raised: number; goal: number }) {
   const pct = goal > 0 ? Math.min((raised / goal) * 100, 100) : 0;
   return (
-    <div className="w-full h-2 bg-surface-muted rounded-full overflow-hidden">
+    <div className="w-full h-2.5 bg-surface-muted rounded-full overflow-hidden">
       <div
         className="h-full bg-primary rounded-full transition-all duration-500"
-        style={{ width: `${Math.max(pct, 2)}%` }}
+        style={{ width: `${Math.max(pct, 3)}%` }}
       />
     </div>
   );
@@ -102,21 +101,21 @@ function ShareButtons({ slug }: { slug: string }) {
     <div className="flex gap-2">
       <button
         onClick={copyLink}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors cursor-pointer"
       >
         {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
         {copied ? "Copied!" : "Copy Link"}
       </button>
       <a
         href={`sms:&body=Help invest in a child's future! ${url}`}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors"
+        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors"
       >
         <Share2 className="h-3.5 w-3.5" />
         Text
       </a>
       <a
         href={`mailto:?subject=Gift for a child's future&body=Help invest in a child's future! ${url}`}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors"
+        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-surface-muted text-text-secondary hover:text-text-primary hover:bg-border-light transition-colors"
       >
         <Share2 className="h-3.5 w-3.5" />
         Email
@@ -168,23 +167,20 @@ export function GiftPageView({
     : publicData.recentGifts.slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="bg-surface border-b border-border-light">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="bg-surface border-b border-border-light sticky top-0 z-20">
+        <div className="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Sprout className="h-5 w-5 text-primary" />
             <span className="text-base font-bold text-text-primary">SeedGift</span>
           </Link>
-          <div className="flex items-center gap-1.5 text-xs text-text-secondary">
-            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-            <span>Payments protected</span>
-          </div>
+          <ShareButtons slug={giftPage.slug} />
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-4 py-8 space-y-6">
-        {/* Hero: child photo + name */}
+      <main className="max-w-xl mx-auto px-4 py-8 space-y-5">
+        {/* Hero */}
         <div className="text-center">
           <Avatar
             src={giftPage.childPhotoUrl}
@@ -195,78 +191,74 @@ export function GiftPageView({
           <h1 className="text-3xl sm:text-4xl text-text-primary leading-tight">
             {giftPage.childName}&apos;s {giftPage.eventName}
           </h1>
-          <p className="text-text-secondary mt-2">
-            Give a gift that grows &middot; Invested in{" "}
-            <span className="font-medium text-text-primary">{giftPage.fundTicker}</span>{" "}
-            ({giftPage.fundName})
-          </p>
         </div>
 
-        {/* Progress bar + stats */}
+        {/* Progress + stats — combined in one tight card */}
         <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
-          <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-2xl font-bold text-text-primary">
-              {formatCurrency(totalRaised)}
-            </span>
-            <span className="text-sm text-text-secondary">raised</span>
-          </div>
-          <ProgressBar raised={totalRaised} goal={Math.max(totalRaised * 2, 500)} />
-          <div className="flex items-center gap-4 mt-3">
+          <div className="flex items-baseline justify-between mb-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-text-primary">
+                {formatCurrency(totalRaised)}
+              </span>
+              <span className="text-sm text-text-secondary">raised</span>
+            </div>
             <div className="flex items-center gap-1.5 text-sm text-text-secondary">
-              <Heart className="h-3.5 w-3.5" />
+              <Heart className="h-3.5 w-3.5 text-primary" />
               <span>
-                <strong className="text-text-primary">{publicData.giftCount}</strong>{" "}
-                gift{publicData.giftCount !== 1 ? "s" : ""}
+                {publicData.giftCount} gift{publicData.giftCount !== 1 ? "s" : ""}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-sm text-text-secondary">
-              <Users className="h-3.5 w-3.5" />
-              <span>from family &amp; friends</span>
-            </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-border-light">
-            <ShareButtons slug={giftPage.slug} />
-          </div>
-        </div>
+          <ProgressBar raised={totalRaised} goal={Math.max(totalRaised * 2, 500)} />
 
-        {/* Big CTA */}
-        <Link href={`/gift/${giftPage.slug}/donate`}>
-          <Button size="lg" className="w-full text-lg py-4">
-            <Gift className="h-5 w-5 mr-2" />
-            Give a Gift
-          </Button>
-        </Link>
-
-        {/* Organizer / parent info */}
-        <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary-light text-primary-dark font-semibold flex items-center justify-center text-sm">
+          {/* Organizer row */}
+          <div className="flex items-center gap-2.5 mt-4 pt-4 border-t border-border-light">
+            <div className="h-8 w-8 rounded-full bg-primary-light text-primary-dark font-semibold flex items-center justify-center text-xs">
               {publicData.parentName ? publicData.parentName.charAt(0).toUpperCase() : "P"}
             </div>
-            <div>
-              <p className="text-sm font-semibold text-text-primary flex items-center gap-1.5">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-text-primary flex items-center gap-1">
                 {publicData.parentName ?? "Parent"}
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" />
               </p>
-              <p className="text-xs text-text-secondary">Organizer &middot; Parent</p>
             </div>
+            <span className="text-xs text-text-secondary">Organizer</span>
           </div>
         </div>
 
-        {/* How it works mini-explainer */}
+        {/* Investment badge */}
+        <div className="flex items-center gap-3 bg-surface rounded-[var(--radius-xl)] shadow-card p-4">
+          <div className="h-10 w-10 rounded-[var(--radius-md)] bg-primary-light flex items-center justify-center shrink-0">
+            <TrendingUp className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-text-primary">
+              Invested in {giftPage.fundTicker}
+            </p>
+            <p className="text-xs text-text-secondary truncate">
+              {giftPage.fundName}
+              {fund && ` · ${(fund.avgAnnualReturn * 100).toFixed(1)}% avg. annual return`}
+            </p>
+          </div>
+        </div>
+
+        {/* How it works — horizontal steps */}
         <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
           <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
             <Info className="h-4 w-4 text-primary" />
-            How SeedGift Works
+            How It Works
           </h3>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex items-start">
             {[
-              { step: "1", title: "You give", desc: "Choose an amount & contribute" },
-              { step: "2", title: "It's invested", desc: `Funds go into ${giftPage.fundTicker}` },
-              { step: "3", title: "It grows", desc: "Compounds for years to come" },
-            ].map((s) => (
-              <div key={s.step} className="text-center">
-                <div className="h-8 w-8 rounded-full bg-primary text-text-inverse text-sm font-bold flex items-center justify-center mx-auto mb-2">
+              { step: "1", title: "You give", desc: "Pick an amount" },
+              { step: "2", title: "It's invested", desc: `Goes into ${giftPage.fundTicker}` },
+              { step: "3", title: "It grows", desc: "Compounds over time" },
+            ].map((s, i) => (
+              <div key={s.step} className="flex-1 text-center relative">
+                {i < 2 && (
+                  <div className="absolute top-4 left-[60%] right-0 h-px bg-border" />
+                )}
+                <div className="h-8 w-8 rounded-full bg-primary text-text-inverse text-sm font-bold flex items-center justify-center mx-auto mb-2 relative z-10">
                   {s.step}
                 </div>
                 <p className="text-xs font-semibold text-text-primary">{s.title}</p>
@@ -276,39 +268,12 @@ export function GiftPageView({
           </div>
         </div>
 
-        {/* Fund info card */}
-        {fund && (
-          <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
-            <h3 className="text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              About {giftPage.fundTicker}
-            </h3>
-            <p className="text-sm text-text-secondary leading-relaxed mb-3">
-              {fund.description}
-            </p>
-            <div className="flex gap-4 text-xs text-text-secondary">
-              <span>
-                Avg. return:{" "}
-                <strong className="text-text-primary">
-                  {(fund.avgAnnualReturn * 100).toFixed(1)}%/yr
-                </strong>
-              </span>
-              <span>
-                Category:{" "}
-                <strong className="text-text-primary capitalize">
-                  {fund.category.replace("-", " ")}
-                </strong>
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Recent gifts feed */}
+        {/* Recent gifts */}
         {publicData.recentGifts.length > 0 && (
           <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
             <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
-              <Gift className="h-4 w-4 text-primary" />
-              Recent Gifts
+              <Users className="h-4 w-4 text-primary" />
+              Supporters
             </h3>
             <div className="divide-y divide-border-light">
               {visibleGifts.map((g, i) => (
@@ -330,16 +295,8 @@ export function GiftPageView({
           </div>
         )}
 
-        {/* Bottom CTA */}
-        <Link href={`/gift/${giftPage.slug}/donate`}>
-          <Button size="lg" className="w-full text-lg py-4">
-            <Gift className="h-5 w-5 mr-2" />
-            Give a Gift
-          </Button>
-        </Link>
-
         {/* Trust footer */}
-        <div className="flex items-center justify-center gap-4 text-xs text-text-secondary pb-4">
+        <div className="flex items-center justify-center gap-4 text-xs text-text-secondary pt-2">
           <div className="flex items-center gap-1">
             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             <span>Secured by Stripe</span>
@@ -350,6 +307,27 @@ export function GiftPageView({
           <Link href="/terms" className="hover:underline">Terms</Link>
         </div>
       </main>
+
+      {/* Sticky bottom CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-border-light">
+        <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-text-primary truncate">
+              {giftPage.childName}&apos;s {giftPage.eventName}
+            </p>
+            <p className="text-xs text-text-secondary">
+              {formatCurrency(totalRaised)} raised &middot; {publicData.giftCount} gift{publicData.giftCount !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <Link
+            href={`/gift/${giftPage.slug}/donate`}
+            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-text-inverse font-semibold rounded-full px-6 py-3 text-base transition-colors shrink-0"
+          >
+            <Gift className="h-4.5 w-4.5" />
+            Give a Gift
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
