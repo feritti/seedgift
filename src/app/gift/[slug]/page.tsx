@@ -1,5 +1,5 @@
 import { GiftPageView } from "@/components/gift/gift-page-view";
-import { getGiftPageBySlug } from "@/lib/actions/gift-pages";
+import { getGiftPageBySlug, getGiftPagePublicData } from "@/lib/actions/gift-pages";
 import { notFound } from "next/navigation";
 
 export default async function PublicGiftPage({
@@ -11,6 +11,8 @@ export default async function PublicGiftPage({
   const giftPage = await getGiftPageBySlug(slug);
 
   if (!giftPage) notFound();
+
+  const publicData = await getGiftPagePublicData(giftPage.id);
 
   return (
     <GiftPageView
@@ -25,6 +27,7 @@ export default async function PublicGiftPage({
         fundName: giftPage.fund_name,
         status: giftPage.status,
       }}
+      publicData={publicData}
     />
   );
 }

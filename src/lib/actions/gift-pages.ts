@@ -240,3 +240,49 @@ export async function getGiftPageBySlug(slug: string) {
 
   return data;
 }
+
+/** Fetch public gift data for the gift page view (recent gifts, totals, parent name) */
+export async function getGiftPagePublicData(giftPageId: string) {
+  const db = createServerClient();
+
+  // Get recent completed gifts (public: name, amount, date only)
+  const { data: gifts } = await db
+    .from("gifts")
+    .select("giver_name, amount_cents, created_at")
+    .eq("gift_page_id", giftPageId)
+    .eq("status", "completed")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  // Get parent name from the users table via the gift page
+  const { data: giftPage } = await db
+    .from("gift_pages")
+    .select("user_id")
+    .eq("id", giftPageId)
+    .single();
+
+  let parentName: string | null = null;
+  if (giftPage?.user_id) {
+    const { data: user } = await db
+      .from("users")
+      .select("name")
+      .eq("id", giftPage.user_id)
+      .single();
+    parentName = user?.name ?? null;
+  }
+
+  const completedGifts = gifts ?? [];
+  const totalRaised = completedGifts.reduce((sum, g) => sum + g.amount_cents, 0);
+  const giftCount = completedGifts.length;
+
+  return {
+    recentGifts: completedGifts.map((g) => ({
+      giverName: g.giver_name,
+      amountCents: g.amount_cents,
+      createdAt: g.created_at,
+    })),
+    totalRaisedCents: totalRaised,
+    giftCount,
+    parentName,
+  };
+}
