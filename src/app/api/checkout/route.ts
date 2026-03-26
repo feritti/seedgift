@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { giftPageId, amountCents, giverName, giverEmail, note } = body;
+  const { giftPageId, amountCents, tipCents, giverName, giverEmail, note } = body;
 
   // Validate required fields exist and are correct types
   if (!giftPageId || !amountCents || !giverName || !giverEmail) {
@@ -87,6 +87,11 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Validate optional tip
+  const validatedTipCents = typeof tipCents === "number" && Number.isInteger(tipCents) && tipCents >= 0 && tipCents <= 1_000_000
+    ? tipCents
+    : 0;
+
   // Sanitize inputs
   const sanitizedName = giverName.trim();
   const sanitizedEmail = giverEmail.trim().toLowerCase();
@@ -125,37 +130,57 @@ export async function POST(request: NextRequest) {
 
   const stripe = getStripe();
 
+  // Build line items
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: `Gift for ${giftPage.child_name}'s ${giftPage.event_name}`,
+          description: `Invested in ${giftPage.fund_ticker} (${giftPage.fund_name})`,
+        },
+        unit_amount: amountCents,
+      },
+      quantity: 1,
+    },
+  ];
+
+  // Add tip as a separate line item (stays with SeedGift)
+  if (validatedTipCents > 0) {
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: "Tip for SeedGift",
+          description: "Optional tip to support the SeedGift platform",
+        },
+        unit_amount: validatedTipCents,
+      },
+      quantity: 1,
+    });
+  }
+
   // Build checkout session params
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: `Gift for ${giftPage.child_name}'s ${giftPage.event_name}`,
-            description: `Invested in ${giftPage.fund_ticker} (${giftPage.fund_name})`,
-          },
-          unit_amount: amountCents,
-        },
-        quantity: 1,
-      },
-    ],
+    line_items: lineItems,
     metadata: {
       gift_id: gift.id,
       giver_email: sanitizedEmail,
       giver_name: sanitizedName,
+      tip_cents: String(validatedTipCents),
     },
     customer_email: sanitizedEmail,
     success_url: `${appUrl}/gift/${giftPage.slug}?success=true`,
     cancel_url: `${appUrl}/gift/${giftPage.slug}`,
   };
 
-  // If the parent has Stripe Connect, route payment directly to them (no platform fee)
+  // If the parent has Stripe Connect, transfer only the gift amount (not the tip)
   const parentStripeAccount = giftPage.users?.stripe_account_id;
   if (parentStripeAccount && giftPage.users?.stripe_onboarded) {
     sessionParams.payment_intent_data = {
       transfer_data: {
+        amount: amountCents, // Only the gift amount goes to the parent
         destination: parentStripeAccount,
       },
     };

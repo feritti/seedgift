@@ -186,11 +186,25 @@ export function GiftPageView({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAllGifts, setShowAllGifts] = useState(false);
 
+  // Tip state
+  type TipOption = "15" | "20" | "25" | "custom" | "none";
+  const [tipOption, setTipOption] = useState<TipOption>("15");
+  const [customTip, setCustomTip] = useState("");
+
   const amount = isCustom ? parseFloat(customAmount) || 0 : selectedAmount || 0;
   const fund = getFundByTicker(giftPage.fundTicker);
   const projectedValue = fund
     ? calculateGrowth(amount, fund.avgAnnualReturn, PROJECTION_YEARS)
     : 0;
+
+  // Tip calculation
+  const tipAmount =
+    tipOption === "none"
+      ? 0
+      : tipOption === "custom"
+        ? parseFloat(customTip) || 0
+        : Math.round(amount * (parseInt(tipOption) / 100) * 100) / 100;
+  const grandTotal = amount + tipAmount;
 
   const totalRaised = publicData.totalRaisedCents / 100;
   const visibleGifts = showAllGifts
@@ -226,6 +240,7 @@ export function GiftPageView({
         body: JSON.stringify({
           giftPageId: giftPage.id,
           amountCents,
+          tipCents: Math.round(tipAmount * 100),
           giverName: giverName.trim(),
           giverEmail: giverEmail.trim().toLowerCase(),
           note: note?.trim() || null,
@@ -515,6 +530,97 @@ export function GiftPageView({
                 )}
               </div>
 
+              {/* Tip section */}
+              {amount > 0 && (
+                <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
+                  <div className="mb-3">
+                    <h3 className="text-sm font-semibold text-text-primary">
+                      Tip SeedGift
+                    </h3>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      SeedGift doesn&apos;t charge fees. An optional tip helps us
+                      keep the platform free for families.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2 mb-3">
+                    {(
+                      [
+                        { key: "15" as TipOption, label: "15%" },
+                        { key: "20" as TipOption, label: "20%" },
+                        { key: "25" as TipOption, label: "25%" },
+                        { key: "none" as TipOption, label: "None" },
+                      ] as const
+                    ).map((opt) => (
+                      <button
+                        key={opt.key}
+                        onClick={() => {
+                          setTipOption(opt.key);
+                          setCustomTip("");
+                        }}
+                        className={`py-2 rounded-[var(--radius-md)] text-center text-xs font-semibold transition-colors cursor-pointer ${
+                          tipOption === opt.key
+                            ? "bg-primary text-text-inverse"
+                            : "bg-surface-muted text-text-primary hover:bg-primary-light"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setTipOption("custom")}
+                    className={`w-full text-left text-xs font-medium px-3 py-2 rounded-[var(--radius-md)] transition-colors cursor-pointer ${
+                      tipOption === "custom"
+                        ? "bg-primary-light text-primary-dark"
+                        : "text-text-secondary hover:text-text-primary"
+                    }`}
+                  >
+                    Enter custom tip
+                  </button>
+
+                  {tipOption === "custom" && (
+                    <div className="mt-2">
+                      <Input
+                        placeholder="Custom tip amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={customTip}
+                        onChange={(e) => setCustomTip(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  {tipAmount > 0 && (
+                    <p className="text-xs text-text-secondary mt-2">
+                      Your tip: {formatCurrency(tipAmount)}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Total summary */}
+              {amount > 0 && (
+                <div className="bg-surface-muted rounded-[var(--radius-lg)] px-4 py-3">
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>Gift to {giftPage.childName}</span>
+                    <span>{formatCurrency(amount)}</span>
+                  </div>
+                  {tipAmount > 0 && (
+                    <div className="flex justify-between text-sm text-text-secondary mt-1">
+                      <span>Tip to SeedGift</span>
+                      <span>{formatCurrency(tipAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm font-bold text-text-primary mt-2 pt-2 border-t border-border-light">
+                    <span>Total</span>
+                    <span>{formatCurrency(grandTotal)}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Giver info */}
               <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
                 <h2 className="text-lg font-semibold text-text-primary mb-4 font-[family-name:var(--font-body)]">
@@ -574,8 +680,9 @@ export function GiftPageView({
                 isLoading={isProcessing}
                 onClick={handleGift}
               >
-                Gift {amount > 0 ? formatCurrency(amount) : ""} to{" "}
-                {giftPage.childName}
+                {grandTotal > 0
+                  ? `Pay ${formatCurrency(grandTotal)}`
+                  : `Gift to ${giftPage.childName}`}
               </Button>
 
               {/* Trust footer */}
