@@ -1,15 +1,15 @@
-import { TrendingUp, ShieldCheck, Heart } from "lucide-react";
+import { Gift, Banknote, Heart } from "lucide-react";
 
 const highlights = [
   {
-    icon: TrendingUp,
-    value: "17x",
-    label: "Average growth over 30 years",
+    icon: Gift,
+    value: "Any Amount",
+    label: "From $5 to $500, every gift counts",
   },
   {
-    icon: ShieldCheck,
-    value: "100%",
-    label: "Goes to the child — no platform fee",
+    icon: Banknote,
+    value: "Straight to You",
+    label: "Gifts deposit directly to your bank account",
   },
   {
     icon: Heart,
