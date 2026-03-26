@@ -5,7 +5,7 @@ const steps = [
     icon: UserPlus,
     title: "Create a Gift Page",
     description:
-      "Add your child's name, photo, and choose an investment fund. Pick the occasion — birthday, holiday, graduation — and you're set.",
+      "Add your child's name and photo. Pick the occasion — birthday, holiday, graduation — and your gift page is ready to share.",
   },
   {
     icon: Link2,
