@@ -21,7 +21,7 @@ function layout(content: string): string {
       ${content}
     </div>
     <div style="text-align:center;margin-top:32px;font-size:13px;color:#6B7280;">
-      <p>SeedGift — Plant a financial seed for a child you love.</p>
+      <p>SeedGift — Plant a financial seed for the child you love.</p>
       <p><a href="https://www.seedgift.xyz" style="color:#00B964;text-decoration:none;">www.seedgift.xyz</a></p>
     </div>
   </div>

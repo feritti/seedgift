@@ -13,7 +13,7 @@ export function HeroSection() {
 
           {/* Headline */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal leading-tight text-text-primary mb-6">
-            Plant a financial seed for a child you love
+            Plant a financial seed for the child you love
           </h1>
 
           {/* Subtitle */}
