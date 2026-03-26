@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SeedGift — Plant a Financial Seed for a Child You Love",
+  title: "SeedGift — Plant a Financial Seed for the Child You Love",
   description:
     "Give children financial gifts that grow. SeedGift makes it easy to invest birthday, holiday, and milestone gifts in the S&P 500.",
 };
