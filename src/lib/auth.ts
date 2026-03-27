@@ -1,20 +1,13 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
-import { SupabaseAdapter } from "@auth/supabase-adapter";
 import { createServerClient } from "@/lib/db";
 import { magicLinkEmail } from "@/lib/email-templates";
-
-function getAdapter() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !secret) return undefined;
-  return SupabaseAdapter({ url, secret });
-}
+import { VerificationTokenAdapter } from "@/lib/auth-adapter";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  adapter: getAdapter(),
+  adapter: VerificationTokenAdapter(),
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
