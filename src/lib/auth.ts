@@ -1,17 +1,45 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Resend from "next-auth/providers/resend";
+import { SupabaseAdapter } from "@auth/supabase-adapter";
 import { createServerClient } from "@/lib/db";
+import { magicLinkEmail } from "@/lib/email-templates";
+
+function getAdapter() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !secret) return undefined;
+  return SupabaseAdapter({ url, secret });
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  adapter: getAdapter(),
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
+    Resend({
+      apiKey: process.env.RESEND_API_KEY,
+      from: "SeedGift <noreply@seedgift.xyz>",
+      async sendVerificationRequest({ identifier: email, url }) {
+        const { Resend: ResendClient } = await import("resend");
+        const resend = new ResendClient(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: "SeedGift <noreply@seedgift.xyz>",
+          to: email,
+          subject: "Sign in to SeedGift",
+          html: magicLinkEmail({ url }),
+        });
+      },
+    }),
   ],
+  // Use JWT sessions so Google OAuth keeps working without adapter sessions
+  session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
+    verifyRequest: "/login/verify",
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
@@ -73,8 +101,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true;
     },
-    async session({ session }) {
-      // Attach the Supabase user ID to the session
+    async session({ session, token }) {
+      // With JWT strategy, user info comes from the token
       if (session.user?.email) {
         const db = createServerClient();
         const { data } = await db
@@ -89,6 +117,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
+      }
+      return token;
     },
   },
 });
