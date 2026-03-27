@@ -108,6 +108,18 @@ export function thankYouEmail({
   `);
 }
 
+export function magicLinkEmail({ url }: { url: string }): string {
+  return layout(`
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">Sign in to SeedGift</h1>
+    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">Click the button below to securely sign in. This link expires in 10 minutes.</p>
+    <div style="text-align:center;margin:32px 0;">
+      <a href="${url}" style="display:inline-block;background:#00B964;color:#FFFFFF;font-size:16px;font-weight:600;padding:14px 40px;border-radius:9999px;text-decoration:none;">Sign in to SeedGift</a>
+    </div>
+    <p style="font-size:13px;color:#6B7280;margin:0;">If you didn&apos;t request this email, you can safely ignore it.</p>
+    <p style="font-size:12px;color:#9CA3AF;margin:16px 0 0;word-break:break-all;">Or copy this link: ${url}</p>
+  `);
+}
+
 export function contactFormEmail({
   name,
   email,
