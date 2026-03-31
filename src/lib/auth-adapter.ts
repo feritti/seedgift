@@ -71,15 +71,51 @@ export function VerificationTokenAdapter(): Adapter {
         emailVerified: new Date(),
       } as AdapterUser;
     },
-    async getUserByAccount() {
-      return null;
+    async getUserByAccount({ provider, providerAccountId }) {
+      const db = createServerClient();
+      const { data: account } = await db
+        .from("accounts")
+        .select("user_id")
+        .eq("provider", provider)
+        .eq("provider_account_id", providerAccountId)
+        .single();
+
+      if (!account) return null;
+
+      const { data: user } = await db
+        .from("users")
+        .select("id, email, name, image")
+        .eq("id", account.user_id)
+        .single();
+
+      if (!user) return null;
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        emailVerified: new Date(),
+      } as AdapterUser;
     },
     async updateUser(user) {
       return user as AdapterUser;
     },
     async deleteUser() {},
-    async linkAccount() {
-      return undefined;
+    async linkAccount(account) {
+      const db = createServerClient();
+      await db.from("accounts").insert({
+        user_id: account.userId,
+        type: account.type,
+        provider: account.provider,
+        provider_account_id: account.providerAccountId,
+        refresh_token: account.refresh_token ?? null,
+        access_token: account.access_token ?? null,
+        expires_at: account.expires_at ?? null,
+        token_type: account.token_type ?? null,
+        scope: account.scope ?? null,
+        id_token: account.id_token ?? null,
+      });
+      return account;
     },
     async unlinkAccount() {},
     async createSession() {
