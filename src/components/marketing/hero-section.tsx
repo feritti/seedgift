@@ -18,9 +18,8 @@ export function HeroSection() {
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
-            Skip the plastic toys and forgotten gift cards. Give a gift that
-            lasts — money that parents can save and invest for their child's
-            future.
+            Skip the plastic toys and forgotten gift cards. Give your child the
+            gift that lasts — money they can save and invest for the future.
           </p>
 
           {/* CTA */}
