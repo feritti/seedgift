@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { createServerClient as createAdminClient } from "@/lib/db";
 
 export type Session = {
   user: {
@@ -20,7 +21,9 @@ export const getSession = cache(async (): Promise<Session | null> => {
 
   if (!user?.email) return null;
 
-  const { data: profile } = await supabase
+  // Use admin client to bypass RLS — users table only allows service_role access
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from("users")
     .select("id, stripe_onboarded")
     .eq("email", user.email)

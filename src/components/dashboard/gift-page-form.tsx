@@ -41,16 +41,19 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fundTicker, setFundTicker] = useState(defaultValues?.fundTicker ?? "VOO");
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
+    setFormError(null);
     try {
       if (mode === "create") {
         await createGiftPage(formData);
       } else if (giftPageId) {
         await updateGiftPage(giftPageId, formData);
       }
-    } catch {
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -130,6 +133,12 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
                 Historical avg. return: {(selectedFund.avgAnnualReturn * 100).toFixed(1)}% per year
               </span>
             </p>
+          </div>
+        )}
+
+        {formError && (
+          <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 rounded-[var(--radius-md)] p-3">
+            <span>{formError}</span>
           </div>
         )}
 
