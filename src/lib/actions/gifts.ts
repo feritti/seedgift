@@ -1,11 +1,11 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createServerClient } from "@/lib/db";
 import { sendThankYouEmail } from "@/lib/email";
 
 export async function getMyGifts() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return [];
 
   const db = createServerClient();
@@ -34,7 +34,7 @@ export async function getMyGifts() {
 }
 
 export async function markGiftThanked(giftId: string, message: string) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const db = createServerClient();

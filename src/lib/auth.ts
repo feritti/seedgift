@@ -1,123 +1,44 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-import Resend from "next-auth/providers/resend";
-import { createServerClient } from "@/lib/db";
-import { magicLinkEmail } from "@/lib/email-templates";
-import { VerificationTokenAdapter } from "@/lib/auth-adapter";
+import { cache } from "react";
+import { createClient } from "@/lib/supabase/server";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  trustHost: true,
-  adapter: VerificationTokenAdapter(),
-  providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
-    Resend({
-      apiKey: process.env.RESEND_API_KEY,
-      from: "SeedGift <noreply@seedgift.xyz>",
-      async sendVerificationRequest({ identifier: email, url }) {
-        const { Resend: ResendClient } = await import("resend");
-        const resend = new ResendClient(process.env.RESEND_API_KEY);
-        await resend.emails.send({
-          from: "SeedGift <noreply@seedgift.xyz>",
-          to: email,
-          subject: "Sign in to SeedGift",
-          html: magicLinkEmail({ url }),
-        });
-      },
-    }),
-  ],
-  // Use JWT sessions so Google OAuth keeps working without adapter sessions
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-    verifyRequest: "/login/verify",
-  },
-  callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const protectedPaths = ["/dashboard", "/gift-pages", "/gifts", "/resources", "/settings"];
-      const isProtected = protectedPaths.some((path) =>
-        nextUrl.pathname.startsWith(path)
-      );
+export type Session = {
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    image: string | null;
+    stripeOnboarded: boolean;
+  };
+};
 
-      if (isProtected && !isLoggedIn) {
-        return false;
-      }
+/** Cached per-request to avoid redundant Supabase calls in server components */
+export const getSession = cache(async (): Promise<Session | null> => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-      return true;
+  if (!user?.email) return null;
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select("id, stripe_onboarded")
+    .eq("email", user.email)
+    .single();
+
+  return {
+    user: {
+      id: profile?.id ?? user.id,
+      email: user.email,
+      name:
+        user.user_metadata?.full_name ??
+        user.user_metadata?.name ??
+        null,
+      image:
+        user.user_metadata?.avatar_url ??
+        user.user_metadata?.picture ??
+        null,
+      stripeOnboarded: profile?.stripe_onboarded ?? false,
     },
-    async signIn({ user }) {
-      // Sync user to Supabase on every sign-in
-      if (user.email) {
-        const db = createServerClient();
-
-        // Check if user already exists
-        const { data: existingUser } = await db
-          .from("users")
-          .select("id")
-          .eq("email", user.email)
-          .single();
-
-        await db.from("users").upsert(
-          {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-          },
-          { onConflict: "email" }
-        );
-
-        // Create a demo gift page for brand new users
-        if (!existingUser) {
-          const { data: newUser } = await db
-            .from("users")
-            .select("id")
-            .eq("email", user.email)
-            .single();
-
-          if (newUser) {
-            const slug = `demo-child-birthday-${Math.random().toString(36).slice(2, 8)}`;
-            await db.from("gift_pages").insert({
-              user_id: newUser.id,
-              slug,
-              child_name: "Demo Child",
-              child_dob: "2022-06-15",
-              event_name: "Birthday",
-              fund_ticker: "VOO",
-              fund_name: "S&P 500 Index",
-              status: "active",
-            });
-          }
-        }
-      }
-      return true;
-    },
-    async session({ session, token }) {
-      // With JWT strategy, user info comes from the token
-      if (session.user?.email) {
-        const db = createServerClient();
-        const { data } = await db
-          .from("users")
-          .select("id, stripe_account_id, stripe_onboarded")
-          .eq("email", session.user.email)
-          .single();
-
-        if (data) {
-          session.user.id = data.id;
-          session.user.stripeOnboarded = data.stripe_onboarded;
-        }
-      }
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.email = user.email;
-        token.name = user.name;
-        token.picture = user.image;
-      }
-      return token;
-    },
-  },
+  };
 });
