@@ -96,14 +96,19 @@ async function handlePhotoUpload(
   return urlData.publicUrl;
 }
 
-export async function createGiftPage(formData: FormData) {
+export async function createGiftPage(formData: FormData): Promise<{ error?: string }> {
   const session = await getSession();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) return { error: "Please sign in to continue." };
 
-  const { childName, childDob, eventName, fundTicker } = validateFormInputs(formData);
+  let childName: string, childDob: string | null, eventName: string, fundTicker: string;
+  try {
+    ({ childName, childDob, eventName, fundTicker } = validateFormInputs(formData));
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Invalid input" };
+  }
 
   const fund = FUNDS.find((f) => f.ticker === fundTicker);
-  if (!fund) throw new Error("Invalid fund");
+  if (!fund) return { error: "Invalid fund selection." };
 
   const slug = generateSlug(childName, eventName);
   const db = createServerClient();
@@ -126,22 +131,26 @@ export async function createGiftPage(formData: FormData) {
     fund_name: fund.name,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) return { error: "Failed to create gift page. Please try again." };
 
   redirect("/gift-pages");
 }
 
-export async function updateGiftPage(id: string, formData: FormData) {
+export async function updateGiftPage(id: string, formData: FormData): Promise<{ error?: string }> {
   const session = await getSession();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) return { error: "Please sign in to continue." };
 
-  // Validate ID format
-  if (!UUID_REGEX.test(id)) throw new Error("Invalid gift page ID");
+  if (!UUID_REGEX.test(id)) return { error: "Invalid gift page." };
 
-  const { childName, childDob, eventName, fundTicker } = validateFormInputs(formData);
+  let childName: string, childDob: string | null, eventName: string, fundTicker: string;
+  try {
+    ({ childName, childDob, eventName, fundTicker } = validateFormInputs(formData));
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Invalid input" };
+  }
 
   const fund = FUNDS.find((f) => f.ticker === fundTicker);
-  if (!fund) throw new Error("Invalid fund");
+  if (!fund) return { error: "Invalid fund selection." };
 
   const db = createServerClient();
 
@@ -168,7 +177,7 @@ export async function updateGiftPage(id: string, formData: FormData) {
     .eq("id", id)
     .eq("user_id", session.user.id);
 
-  if (error) throw new Error(error.message);
+  if (error) return { error: "Failed to update gift page. Please try again." };
 
   redirect("/gift-pages");
 }
