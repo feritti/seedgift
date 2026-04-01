@@ -31,10 +31,12 @@ function SidebarContent({
   pathname,
   onNavigate,
   collapsed,
+  onToggleCollapse,
 }: {
   pathname: string;
   onNavigate?: () => void;
   collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }) {
   return (
     <>
@@ -62,6 +64,7 @@ function SidebarContent({
             <Sprout className="h-7 w-7 text-primary" />
           </Link>
         )}
+        {/* Mobile close button */}
         {onNavigate && !collapsed && (
           <button
             onClick={onNavigate}
@@ -70,7 +73,30 @@ function SidebarContent({
             <X className="h-5 w-5" />
           </button>
         )}
+        {/* Desktop collapse/expand toggle (expanded state — sits next to logo) */}
+        {onToggleCollapse && !onNavigate && !collapsed && (
+          <button
+            onClick={onToggleCollapse}
+            className="text-text-secondary hover:text-text-primary cursor-pointer"
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </button>
+        )}
       </div>
+
+      {/* Desktop collapse/expand toggle (collapsed state — separate row under logo) */}
+      {onToggleCollapse && !onNavigate && collapsed && (
+        <div className="flex justify-center pb-2">
+          <button
+            onClick={onToggleCollapse}
+            className="text-text-secondary hover:text-text-primary cursor-pointer p-1.5 rounded-[var(--radius-md)] hover:bg-surface-muted transition-colors"
+            title="Expand sidebar"
+          >
+            <PanelLeftOpen className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className={cn("flex-1 space-y-1", collapsed ? "px-2" : "px-3")}>
@@ -200,20 +226,11 @@ export function Sidebar() {
           desktopCollapsed ? "w-[60px]" : "w-[260px]"
         )}
       >
-        <SidebarContent pathname={pathname} collapsed={desktopCollapsed} />
-        <div className="p-2 border-t border-border-light">
-          <button
-            onClick={() => setDesktopCollapsed(!desktopCollapsed)}
-            className="flex items-center justify-center w-full py-2 rounded-[var(--radius-md)] text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors cursor-pointer"
-            title={desktopCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {desktopCollapsed ? (
-              <PanelLeftOpen className="h-5 w-5" />
-            ) : (
-              <PanelLeftClose className="h-5 w-5" />
-            )}
-          </button>
-        </div>
+        <SidebarContent
+          pathname={pathname}
+          collapsed={desktopCollapsed}
+          onToggleCollapse={() => setDesktopCollapsed(!desktopCollapsed)}
+        />
       </aside>
     </>
   );
