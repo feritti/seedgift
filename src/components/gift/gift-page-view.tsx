@@ -294,16 +294,66 @@ export function GiftPageView({
           </div>
         </div>
 
-        {/* Investment plan — prominent card with chart */}
+        {/* ============================================================ */}
+        {/*  GIVE A GIFT — Inline Checkout                                */}
+        {/* ============================================================ */}
+
+        {/* Amount picker */}
+        <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
+          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2 font-[family-name:var(--font-body)]">
+            <Gift className="h-5 w-5 text-primary" />
+            Give a Gift
+          </h2>
+
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            {PRESET_AMOUNTS.map((preset) => (
+              <button
+                key={preset}
+                onClick={() => {
+                  setSelectedAmount(preset);
+                  setIsCustom(false);
+                  setCustomAmount("");
+                }}
+                className={`py-3 rounded-[var(--radius-md)] text-center font-semibold transition-colors cursor-pointer ${
+                  !isCustom && selectedAmount === preset
+                    ? "bg-primary text-text-inverse"
+                    : "bg-surface-muted text-text-primary hover:bg-primary-light"
+                }`}
+              >
+                ${preset}
+              </button>
+            ))}
+          </div>
+
+          <Input
+            placeholder="Custom amount"
+            type="number"
+            min="1"
+            step="1"
+            value={customAmount}
+            onFocus={() => {
+              setIsCustom(true);
+              setSelectedAmount(null);
+            }}
+            onChange={(e) => {
+              setCustomAmount(e.target.value);
+              setIsCustom(true);
+              setSelectedAmount(null);
+            }}
+          />
+
+        </div>
+
+        {/* Investment projection — chart tied to selected amount */}
         {fund && (
           <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-[var(--radius-md)] bg-primary-light flex items-center justify-center shrink-0">
-                <TrendingUp className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-9 w-9 rounded-[var(--radius-md)] bg-primary-light flex items-center justify-center shrink-0">
+                <TrendingUp className="h-4.5 w-4.5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-text-primary">
-                  Gifts are invested in {giftPage.fundTicker}
+                  Invested in {giftPage.fundTicker}
                 </p>
                 <p className="text-xs text-text-secondary">
                   {fund.name} &middot; {(fund.avgAnnualReturn * 100).toFixed(0)}% historical avg. return
@@ -311,14 +361,10 @@ export function GiftPageView({
               </div>
             </div>
 
-            <p className="text-xs text-text-secondary mb-3">
-              {fund.description}
-            </p>
-
             {/* Projection headline */}
-            <div className="bg-primary-light rounded-[var(--radius-md)] p-3 mb-4">
+            <div className="bg-primary-light rounded-[var(--radius-md)] p-3 mb-3">
               <p className="text-sm text-center text-primary-dark">
-                A <span className="font-bold">{formatCurrency(chartAmount)}</span> gift today could grow to{" "}
+                {formatCurrency(chartAmount)} today could grow to{" "}
                 <span className="font-bold text-primary">
                   {formatCurrency(calculateGrowth(chartAmount, fund.avgAnnualReturn, 30))}
                 </span>{" "}
@@ -327,7 +373,7 @@ export function GiftPageView({
             </div>
 
             {/* Growth chart */}
-            <div className="h-40">
+            <div className="h-36">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
@@ -380,74 +426,6 @@ export function GiftPageView({
             </p>
           </div>
         )}
-
-        {/* ============================================================ */}
-        {/*  GIVE A GIFT — Inline Checkout                                */}
-        {/* ============================================================ */}
-
-        {/* Amount picker */}
-        <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
-          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2 font-[family-name:var(--font-body)]">
-            <Gift className="h-5 w-5 text-primary" />
-            Give a Gift
-          </h2>
-
-          <div className="grid grid-cols-4 gap-2 mb-3">
-            {PRESET_AMOUNTS.map((preset) => (
-              <button
-                key={preset}
-                onClick={() => {
-                  setSelectedAmount(preset);
-                  setIsCustom(false);
-                  setCustomAmount("");
-                }}
-                className={`py-3 rounded-[var(--radius-md)] text-center font-semibold transition-colors cursor-pointer ${
-                  !isCustom && selectedAmount === preset
-                    ? "bg-primary text-text-inverse"
-                    : "bg-surface-muted text-text-primary hover:bg-primary-light"
-                }`}
-              >
-                ${preset}
-              </button>
-            ))}
-          </div>
-
-          <Input
-            placeholder="Custom amount"
-            type="number"
-            min="1"
-            step="1"
-            value={customAmount}
-            onFocus={() => {
-              setIsCustom(true);
-              setSelectedAmount(null);
-            }}
-            onChange={(e) => {
-              setCustomAmount(e.target.value);
-              setIsCustom(true);
-              setSelectedAmount(null);
-            }}
-          />
-
-          {/* Growth projection */}
-          {amount > 0 && fund && (
-            <div className="mt-4 bg-primary-light rounded-[var(--radius-md)] p-3">
-              <div className="flex items-start gap-2">
-                <TrendingUp className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-xs font-medium text-primary-dark">
-                    {formatCurrency(amount)} could grow to{" "}
-                    <span className="font-bold">{formatCurrency(projectedValue)}</span> in{" "}
-                    {PROJECTION_YEARS} years*
-                  </p>
-                  <p className="text-xs text-primary-dark/50 mt-0.5">
-                    *{(fund.avgAnnualReturn * 100).toFixed(0)}% avg. annual return. Not guaranteed.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Giver info */}
         <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
