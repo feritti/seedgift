@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import { FUNDS } from "@/shared/constants/funds";
 import { createGiftPage, updateGiftPage, deleteGiftPage } from "@/lib/actions/gift-pages";
+import { GrowthChart } from "@/components/dashboard/growth-chart";
 
 const eventOptions = [
   { value: "Birthday", label: "Birthday" },
@@ -64,7 +65,8 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
 
   return (
     <>
-      <form action={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <form action={handleSubmit} className="space-y-6 lg:col-span-3">
         {/* Photo upload */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1.5">
@@ -153,6 +155,14 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
           )}
         </div>
       </form>
+
+      {/* Growth projection chart */}
+      {selectedFund && (
+        <div className="lg:col-span-2 lg:sticky lg:top-8 lg:self-start">
+          <GrowthChart fund={selectedFund} />
+        </div>
+      )}
+      </div>
 
       {mode === "edit" && (
         <Modal

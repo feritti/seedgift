@@ -1,6 +1,5 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
 import { GiftPageForm } from "@/components/dashboard/gift-page-form";
 import { getGiftPage } from "@/lib/actions/gift-pages";
 import { notFound } from "next/navigation";
@@ -28,20 +27,16 @@ export default async function EditGiftPagePage({
       <h1 className="text-3xl text-text-primary mb-2">Edit Gift Page</h1>
       <p className="text-text-secondary mb-8">Update your gift page details</p>
 
-      <Card className="max-w-2xl">
-        <CardContent>
-          <GiftPageForm
-            mode="edit"
-            giftPageId={id}
-            defaultValues={{
-              childName: giftPage.child_name,
-              childDob: giftPage.child_dob ?? "",
-              eventName: giftPage.event_name,
-              fundTicker: giftPage.fund_ticker,
-            }}
-          />
-        </CardContent>
-      </Card>
+      <GiftPageForm
+        mode="edit"
+        giftPageId={id}
+        defaultValues={{
+          childName: giftPage.child_name,
+          childDob: giftPage.child_dob ?? "",
+          eventName: giftPage.event_name,
+          fundTicker: giftPage.fund_ticker,
+        }}
+      />
     </div>
   );
 }
