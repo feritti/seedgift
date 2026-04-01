@@ -13,6 +13,7 @@ import {
   Gift,
   ChevronDown,
   ChevronUp,
+  Quote,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -45,6 +46,7 @@ interface GiftPageData {
   eventName: string;
   fundTicker: string;
   fundName: string;
+  message: string | null;
   status: string;
 }
 
@@ -151,6 +153,7 @@ export function GiftPageView({
   publicData: PublicData;
 }) {
   const [showAllGifts, setShowAllGifts] = useState(false);
+  const [messageExpanded, setMessageExpanded] = useState(false);
 
   // Checkout state
   const [selectedAmount, setSelectedAmount] = useState<number | null>(50);
@@ -262,6 +265,37 @@ export function GiftPageView({
             {giftPage.childName}&apos;s {giftPage.eventName}
           </h1>
         </div>
+
+        {/* Parent message — collapsible */}
+        {giftPage.message && (
+          <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
+            <div className="flex items-start gap-3">
+              <Quote className="h-5 w-5 text-primary shrink-0 mt-0.5 rotate-180" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-text-secondary mb-2">
+                  A message from {publicData.parentName ?? "the organizer"}
+                </p>
+                <p className="text-sm text-text-primary italic leading-relaxed whitespace-pre-line">
+                  {giftPage.message.length > 150 && !messageExpanded
+                    ? `${giftPage.message.slice(0, 150).trimEnd()}...`
+                    : giftPage.message}
+                </p>
+                {giftPage.message.length > 150 && (
+                  <button
+                    onClick={() => setMessageExpanded(!messageExpanded)}
+                    className="text-xs text-primary font-medium mt-2 flex items-center gap-1 cursor-pointer hover:underline"
+                  >
+                    {messageExpanded ? (
+                      <>Read less <ChevronUp className="h-3 w-3" /></>
+                    ) : (
+                      <>Read more <ChevronDown className="h-3 w-3" /></>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Progress + stats */}
         <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">

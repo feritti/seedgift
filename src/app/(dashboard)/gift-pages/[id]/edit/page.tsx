@@ -35,6 +35,7 @@ export default async function EditGiftPagePage({
           childDob: giftPage.child_dob ?? "",
           eventName: giftPage.event_name,
           fundTicker: giftPage.fund_ticker,
+          message: giftPage.message ?? "",
         }}
       />
     </div>
