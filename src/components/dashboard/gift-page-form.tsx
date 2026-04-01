@@ -48,14 +48,19 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
     setFormError(null);
 
     let result: { error?: string } | undefined;
-    if (mode === "create") {
-      result = await createGiftPage(formData);
-    } else if (giftPageId) {
-      result = await updateGiftPage(giftPageId, formData);
+    try {
+      if (mode === "create") {
+        result = await createGiftPage(formData);
+      } else if (giftPageId) {
+        result = await updateGiftPage(giftPageId, formData);
+      }
+    } catch {
+      // On success, redirect() throws NEXT_REDIRECT — this is expected.
+      // Validation errors are returned as { error }, not thrown.
+      return;
     }
 
-    // On success, the server action calls redirect() and we never reach here.
-    // If we're here, there was a validation error.
+    // If we're here, the action returned without redirecting — show error.
     if (result?.error) {
       setFormError(result.error);
     }
