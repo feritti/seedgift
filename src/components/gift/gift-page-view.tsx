@@ -166,20 +166,22 @@ export function GiftPageView({
   const fund = getFundByTicker(giftPage.fundTicker);
   const totalRaised = publicData.totalRaisedCents / 100;
 
-  // Chart data for growth projection (memoized)
+  const amount = isCustom ? parseFloat(customAmount) || 0 : selectedAmount || 0;
+
+  // Chart data for growth projection — tied to selected gift amount
+  const chartAmount = amount > 0 ? amount : 50;
   const chartData = useMemo(() => {
     if (!fund) return [];
     return Array.from({ length: 31 }, (_, year) => ({
       year,
-      value: Math.round(calculateGrowth(100, fund.avgAnnualReturn, year)),
+      value: Math.round(calculateGrowth(chartAmount, fund.avgAnnualReturn, year)),
     }));
-  }, [fund]);
+  }, [fund, chartAmount]);
 
   const visibleGifts = showAllGifts
     ? publicData.recentGifts
     : publicData.recentGifts.slice(0, 3);
 
-  const amount = isCustom ? parseFloat(customAmount) || 0 : selectedAmount || 0;
   const projectedValue = fund
     ? calculateGrowth(amount, fund.avgAnnualReturn, PROJECTION_YEARS)
     : 0;
@@ -316,9 +318,9 @@ export function GiftPageView({
             {/* Projection headline */}
             <div className="bg-primary-light rounded-[var(--radius-md)] p-3 mb-4">
               <p className="text-sm text-center text-primary-dark">
-                A <span className="font-bold">$100</span> gift today could grow to{" "}
+                A <span className="font-bold">{formatCurrency(chartAmount)}</span> gift today could grow to{" "}
                 <span className="font-bold text-primary">
-                  {formatCurrency(calculateGrowth(100, fund.avgAnnualReturn, 30))}
+                  {formatCurrency(calculateGrowth(chartAmount, fund.avgAnnualReturn, 30))}
                 </span>{" "}
                 in 30 years
               </p>
