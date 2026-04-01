@@ -51,8 +51,8 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
     } else if (giftPageId) {
       await updateGiftPage(giftPageId, formData);
     }
-    // Note: on success, the server action calls redirect() which
-    // navigates away. If we reach here, something unexpected happened.
+    // On success, the server action calls redirect() which navigates away.
+    // If we reach here, something unexpected happened.
     setIsSubmitting(false);
   };
 
