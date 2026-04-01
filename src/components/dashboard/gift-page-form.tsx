@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import Image from "next/image";
+import { Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -42,10 +43,49 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fundTicker, setFundTicker] = useState(defaultValues?.fundTicker ?? "VOO");
   const [formError, setFormError] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = useCallback((file: File) => {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setFormError("Photo must be JPG, PNG, or WebP.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setFormError("Photo must be under 2MB.");
+      return;
+    }
+    setFormError(null);
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
+
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     setFormError(null);
+
+    // Inject drag-and-dropped photo into form data
+    if (photoFile) {
+      formData.set("childPhoto", photoFile);
+    }
 
     let result: { error?: string } | undefined;
     try {
@@ -79,20 +119,64 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
     <>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
       <form action={handleSubmit} className="space-y-6 lg:col-span-3">
-        {/* Photo upload */}
+        {/* Photo upload — drag & drop + click */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1.5">
             Child&apos;s Photo
           </label>
           <input
+            ref={fileInputRef}
             type="file"
             name="childPhoto"
-            accept="image/jpeg,image/png"
-            className="block text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary-light file:text-primary-dark hover:file:bg-primary/20 file:cursor-pointer"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(file);
+            }}
           />
-          <p className="mt-1.5 text-xs text-text-secondary">
-            Optional. JPG or PNG, max 2MB.
-          </p>
+
+          {photoPreview ? (
+            <div className="relative inline-block">
+              <Image
+                src={photoPreview}
+                alt="Preview"
+                width={120}
+                height={120}
+                className="rounded-[var(--radius-md)] object-cover w-[120px] h-[120px]"
+              />
+              <button
+                type="button"
+                onClick={clearPhoto}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-text-primary text-text-inverse rounded-full flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex flex-col items-center justify-center gap-2 rounded-[var(--radius-md)] border-2 border-dashed p-6 cursor-pointer transition-colors ${
+                isDragging
+                  ? "border-primary bg-primary-light"
+                  : "border-border hover:border-primary/50 hover:bg-surface-muted"
+              }`}
+            >
+              <Upload className="h-6 w-6 text-text-secondary" />
+              <p className="text-sm text-text-secondary text-center">
+                <span className="font-medium text-primary">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-xs text-text-secondary">
+                JPG, PNG or WebP, max 2MB
+              </p>
+            </div>
+          )}
         </div>
 
         <Input
