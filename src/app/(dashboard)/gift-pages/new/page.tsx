@@ -1,6 +1,5 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
 import { GiftPageForm } from "@/components/dashboard/gift-page-form";
 
 export default function NewGiftPagePage() {
@@ -20,11 +19,7 @@ export default function NewGiftPagePage() {
         send to family and friends.
       </p>
 
-      <Card className="max-w-2xl">
-        <CardContent>
-          <GiftPageForm mode="create" />
-        </CardContent>
-      </Card>
+      <GiftPageForm mode="create" />
     </div>
   );
 }
