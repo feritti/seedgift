@@ -8,6 +8,7 @@ import { FUNDS } from "@/shared/constants/funds";
 // Validation constants
 const MAX_NAME_LENGTH = 100;
 const MAX_EVENT_LENGTH = 100;
+const MAX_MESSAGE_LENGTH = 1000;
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_PHOTO_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
@@ -41,11 +42,13 @@ function validateFormInputs(formData: FormData): {
   childDob: string | null;
   eventName: string;
   fundTicker: string;
+  message: string | null;
 } {
   const childName = (formData.get("childName") as string)?.trim();
   const childDob = (formData.get("childDob") as string)?.trim() || null;
   const eventName = (formData.get("eventName") as string)?.trim();
   const fundTicker = (formData.get("fundTicker") as string)?.trim();
+  const message = (formData.get("message") as string)?.trim() || null;
 
   if (!childName || childName.length < 1 || childName.length > MAX_NAME_LENGTH) {
     throw new Error(`Child name must be 1-${MAX_NAME_LENGTH} characters`);
@@ -67,7 +70,11 @@ function validateFormInputs(formData: FormData): {
     }
   }
 
-  return { childName, childDob, eventName, fundTicker };
+  if (message && message.length > MAX_MESSAGE_LENGTH) {
+    throw new Error(`Message must be under ${MAX_MESSAGE_LENGTH} characters`);
+  }
+
+  return { childName, childDob, eventName, fundTicker, message };
 }
 
 async function handlePhotoUpload(
@@ -100,9 +107,9 @@ export async function createGiftPage(formData: FormData): Promise<{ error?: stri
   const session = await getSession();
   if (!session?.user?.id) return { error: "Please sign in to continue." };
 
-  let childName: string, childDob: string | null, eventName: string, fundTicker: string;
+  let childName: string, childDob: string | null, eventName: string, fundTicker: string, message: string | null;
   try {
-    ({ childName, childDob, eventName, fundTicker } = validateFormInputs(formData));
+    ({ childName, childDob, eventName, fundTicker, message } = validateFormInputs(formData));
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Invalid input" };
   }
@@ -129,6 +136,7 @@ export async function createGiftPage(formData: FormData): Promise<{ error?: stri
     event_name: eventName,
     fund_ticker: fundTicker,
     fund_name: fund.name,
+    message,
   });
 
   if (error) return { error: "Failed to create gift page. Please try again." };
@@ -142,9 +150,9 @@ export async function updateGiftPage(id: string, formData: FormData): Promise<{ 
 
   if (!UUID_REGEX.test(id)) return { error: "Invalid gift page." };
 
-  let childName: string, childDob: string | null, eventName: string, fundTicker: string;
+  let childName: string, childDob: string | null, eventName: string, fundTicker: string, message: string | null;
   try {
-    ({ childName, childDob, eventName, fundTicker } = validateFormInputs(formData));
+    ({ childName, childDob, eventName, fundTicker, message } = validateFormInputs(formData));
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Invalid input" };
   }
@@ -160,6 +168,7 @@ export async function updateGiftPage(id: string, formData: FormData): Promise<{ 
     event_name: eventName,
     fund_ticker: fundTicker,
     fund_name: fund.name,
+    message,
   };
 
   // Handle photo upload

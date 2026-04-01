@@ -35,7 +35,14 @@ interface GiftPageFormProps {
     childDob: string;
     eventName: string;
     fundTicker: string;
+    message: string;
   };
+}
+
+function getDefaultMessage(childName: string, eventName: string): string {
+  const event = eventName ? eventName.toLowerCase() : "upcoming event";
+  const name = childName || "[Child's Name]";
+  return `Hi everyone! We're so excited to celebrate ${name}'s ${event}. This year, instead of traditional gifts, we're asking friends and family to contribute to their custodial investment account \u2014 a gift that will truly grow over time. Any amount is welcome and deeply appreciated. Thank you for being part of ${name}'s future!`;
 }
 
 export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormProps) {
@@ -43,6 +50,12 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fundTicker, setFundTicker] = useState(defaultValues?.fundTicker ?? "VOO");
   const [formError, setFormError] = useState<string | null>(null);
+  const [childNameLocal, setChildNameLocal] = useState(defaultValues?.childName ?? "");
+  const [eventNameLocal, setEventNameLocal] = useState(defaultValues?.eventName ?? "Birthday");
+  const [message, setMessage] = useState(
+    defaultValues?.message ?? (mode === "create" ? getDefaultMessage(defaultValues?.childName ?? "", "Birthday") : "")
+  );
+  const [messageEdited, setMessageEdited] = useState(mode === "edit");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -186,6 +199,11 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
           placeholder="e.g., Emma"
           required
           defaultValue={defaultValues?.childName}
+          onChange={(e) => {
+            const name = e.target.value;
+            setChildNameLocal(name);
+            if (!messageEdited) setMessage(getDefaultMessage(name, eventNameLocal));
+          }}
         />
 
         <Input
@@ -205,7 +223,43 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
           placeholder="Choose an occasion"
           required
           defaultValue={defaultValues?.eventName}
+          onChange={(e) => {
+            const event = e.target.value;
+            setEventNameLocal(event);
+            if (!messageEdited) setMessage(getDefaultMessage(childNameLocal, event));
+          }}
         />
+
+        {/* Message to givers */}
+        <div>
+          <label
+            htmlFor="message"
+            className="block text-sm font-medium text-text-primary mb-1.5"
+          >
+            Message to Givers
+          </label>
+          <textarea
+            id="message"
+            name="message"
+            rows={4}
+            maxLength={1000}
+            value={message}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              setMessageEdited(true);
+            }}
+            className="w-full rounded-[var(--radius-md)] border-2 border-border px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-primary transition-colors resize-none"
+            placeholder="Write a personal message explaining why you're asking for investment gifts..."
+          />
+          <div className="flex justify-between mt-1.5">
+            <p className="text-xs text-text-secondary">
+              This message will appear on your gift page.
+            </p>
+            <p className="text-xs text-text-secondary">
+              {message.length}/1000
+            </p>
+          </div>
+        </div>
 
         <Select
           id="fundTicker"

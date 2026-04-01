@@ -25,6 +25,7 @@ export default async function PublicGiftPage({
         eventName: giftPage.event_name,
         fundTicker: giftPage.fund_ticker,
         fundName: giftPage.fund_name,
+        message: giftPage.message ?? null,
         status: giftPage.status,
       }}
       publicData={publicData}
