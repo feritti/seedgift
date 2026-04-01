@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createServerClient } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { FUNDS } from "@/shared/constants/funds";
@@ -97,7 +97,7 @@ async function handlePhotoUpload(
 }
 
 export async function createGiftPage(formData: FormData) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const { childName, childDob, eventName, fundTicker } = validateFormInputs(formData);
@@ -132,7 +132,7 @@ export async function createGiftPage(formData: FormData) {
 }
 
 export async function updateGiftPage(id: string, formData: FormData) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   // Validate ID format
@@ -174,7 +174,7 @@ export async function updateGiftPage(id: string, formData: FormData) {
 }
 
 export async function deleteGiftPage(id: string) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const db = createServerClient();
@@ -191,7 +191,7 @@ export async function deleteGiftPage(id: string) {
 }
 
 export async function getMyGiftPages() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return [];
 
   const db = createServerClient();
@@ -213,7 +213,7 @@ export async function getMyGiftPages() {
 }
 
 export async function getGiftPage(id: string) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return null;
 
   const db = createServerClient();

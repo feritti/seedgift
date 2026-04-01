@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getStripe } from "@/lib/stripe";
 import { createServerClient } from "@/lib/db";
 
 export async function GET() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.email) {
     return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL));
   }

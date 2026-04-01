@@ -16,7 +16,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
 
 const navItems = [
@@ -109,7 +109,11 @@ function SidebarContent({
       {/* Sign out */}
       <div className="p-3 border-t border-border-light">
         <button
-          onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={async () => {
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            window.location.href = "/";
+          }}
           className={cn(
             "group relative flex items-center rounded-[var(--radius-md)] text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors w-full cursor-pointer",
             collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"

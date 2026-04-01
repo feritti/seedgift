@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createServerClient } from "@/lib/db";
 import { getFundByTicker } from "@/shared/constants/funds";
 import { calculateGrowth } from "@/shared/utils/growth-calculator";
@@ -14,7 +14,7 @@ export interface RecentGift {
 }
 
 export async function getDashboardStats() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return null;
 
   const db = createServerClient();

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createServerClient } from "@/lib/db";
 
 const MAX_NAME_LENGTH = 100;
@@ -8,7 +8,7 @@ const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function updateProfile(formData: FormData): Promise<{ error?: string }> {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) {
     return { error: "Unauthorized" };
   }

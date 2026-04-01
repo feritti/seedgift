@@ -19,10 +19,10 @@ import {
   formatCurrency,
   formatDate,
 } from "@/shared/utils/growth-calculator";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  const [stats, session] = await Promise.all([getDashboardStats(), auth()]);
+  const [stats, session] = await Promise.all([getDashboardStats(), getSession()]);
 
   const totalGifted = stats ? stats.totalGiftedCents / 100 : 0;
   const activePages = stats?.activeGiftPages ?? 0;
@@ -30,8 +30,7 @@ export default async function DashboardPage() {
   const projectedGrowth = stats?.projectedGrowthTotal ?? 0;
   const recentGifts = stats?.recentGifts ?? [];
 
-  const stripeOnboarded =
-    (session?.user as { stripeOnboarded?: boolean })?.stripeOnboarded ?? false;
+  const stripeOnboarded = session?.user?.stripeOnboarded ?? false;
 
   // Setup checklist
   const hasGiftPage = activePages > 0;
