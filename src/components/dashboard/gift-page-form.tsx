@@ -46,16 +46,14 @@ export function GiftPageForm({ mode, giftPageId, defaultValues }: GiftPageFormPr
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     setFormError(null);
-    try {
-      if (mode === "create") {
-        await createGiftPage(formData);
-      } else if (giftPageId) {
-        await updateGiftPage(giftPageId, formData);
-      }
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-      setIsSubmitting(false);
+    if (mode === "create") {
+      await createGiftPage(formData);
+    } else if (giftPageId) {
+      await updateGiftPage(giftPageId, formData);
     }
+    // Note: on success, the server action calls redirect() which
+    // navigates away. If we reach here, something unexpected happened.
+    setIsSubmitting(false);
   };
 
   const handleDelete = async () => {
