@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Sprout,
   TrendingUp,
@@ -15,6 +15,14 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,6 +165,16 @@ export function GiftPageView({
 
   const fund = getFundByTicker(giftPage.fundTicker);
   const totalRaised = publicData.totalRaisedCents / 100;
+
+  // Chart data for growth projection (memoized)
+  const chartData = useMemo(() => {
+    if (!fund) return [];
+    return Array.from({ length: 31 }, (_, year) => ({
+      year,
+      value: Math.round(calculateGrowth(100, fund.avgAnnualReturn, year)),
+    }));
+  }, [fund]);
+
   const visibleGifts = showAllGifts
     ? publicData.recentGifts
     : publicData.recentGifts.slice(0, 3);
@@ -243,7 +261,7 @@ export function GiftPageView({
           </h1>
         </div>
 
-        {/* Progress + stats + investment — merged card */}
+        {/* Progress + stats */}
         <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
           <div className="flex items-baseline justify-between mb-3">
             <div className="flex items-baseline gap-2">
@@ -261,25 +279,105 @@ export function GiftPageView({
           </div>
           <ProgressBar raised={totalRaised} goal={Math.max(totalRaised * 2, 500)} />
 
-          {/* Organizer + fund — compact row */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border-light">
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full bg-primary-light text-primary-dark font-semibold flex items-center justify-center text-xs">
-                {publicData.parentName ? publicData.parentName.charAt(0).toUpperCase() : "P"}
-              </div>
-              <p className="text-sm font-medium text-text-primary flex items-center gap-1">
-                {publicData.parentName ?? "Parent"}
-                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-              </p>
+          {/* Organizer row */}
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border-light">
+            <div className="h-7 w-7 rounded-full bg-primary-light text-primary-dark font-semibold flex items-center justify-center text-xs">
+              {publicData.parentName ? publicData.parentName.charAt(0).toUpperCase() : "P"}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-text-secondary">
-              <TrendingUp className="h-3.5 w-3.5 text-primary" />
-              <span>
-                {giftPage.fundTicker} &middot; {fund ? `${(fund.avgAnnualReturn * 100).toFixed(0)}%` : ""} avg. return
-              </span>
-            </div>
+            <p className="text-sm font-medium text-text-primary flex items-center gap-1">
+              {publicData.parentName ?? "Parent"}
+              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+            </p>
+            <span className="text-xs text-text-secondary ml-auto">Organizer</span>
           </div>
         </div>
+
+        {/* Investment plan — prominent card with chart */}
+        {fund && (
+          <div className="bg-surface rounded-[var(--radius-xl)] shadow-card p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-[var(--radius-md)] bg-primary-light flex items-center justify-center shrink-0">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-text-primary">
+                  Gifts are invested in {giftPage.fundTicker}
+                </p>
+                <p className="text-xs text-text-secondary">
+                  {fund.name} &middot; {(fund.avgAnnualReturn * 100).toFixed(0)}% historical avg. return
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-text-secondary mb-3">
+              {fund.description}
+            </p>
+
+            {/* Projection headline */}
+            <div className="bg-primary-light rounded-[var(--radius-md)] p-3 mb-4">
+              <p className="text-sm text-center text-primary-dark">
+                A <span className="font-bold">$100</span> gift today could grow to{" "}
+                <span className="font-bold text-primary">
+                  {formatCurrency(calculateGrowth(100, fund.avgAnnualReturn, 30))}
+                </span>{" "}
+                in 30 years
+              </p>
+            </div>
+
+            {/* Growth chart */}
+            <div className="h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
+                >
+                  <defs>
+                    <linearGradient id="giftGrowthGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#00B964" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#00B964" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="year"
+                    tick={{ fontSize: 10, fill: "#6B7280" }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => (v % 10 === 0 ? `${v}y` : "")}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "#6B7280" }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) =>
+                      v >= 1000 ? `$${(v / 1000).toFixed(0)}K` : `$${v}`
+                    }
+                  />
+                  <Tooltip
+                    formatter={(value) => [formatCurrency(Number(value)), "Value"]}
+                    labelFormatter={(year) => `Year ${year}`}
+                    contentStyle={{
+                      borderRadius: "0.75rem",
+                      border: "1px solid #E5E7EB",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      fontSize: "0.8125rem",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#00B964"
+                    strokeWidth={2}
+                    fill="url(#giftGrowthGradient)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <p className="text-[10px] text-text-secondary text-center mt-2">
+              Based on historical average returns. Actual results may vary.
+            </p>
+          </div>
+        )}
 
         {/* ============================================================ */}
         {/*  GIVE A GIFT — Inline Checkout                                */}
