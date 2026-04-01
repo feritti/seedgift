@@ -8,8 +8,8 @@ const highlights = [
   },
   {
     icon: Banknote,
-    value: "Straight to You",
-    label: "Gifts deposit directly to your bank account",
+    value: "No Login Required",
+    label: "No login required for gift givers",
   },
   {
     icon: Heart,
