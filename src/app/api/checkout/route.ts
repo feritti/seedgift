@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
       tip_cents: String(validatedTipCents),
     },
     customer_email: sanitizedEmail,
-    success_url: `${appUrl}/gift/${giftPage.slug}?success=true`,
+    success_url: `${appUrl}/gift/${giftPage.slug}/thanks?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${appUrl}/gift/${giftPage.slug}`,
   };
 
