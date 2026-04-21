@@ -13,8 +13,6 @@ import {
   LogOut,
   Menu,
   X,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
@@ -30,42 +28,23 @@ const navItems = [
 function SidebarContent({
   pathname,
   onNavigate,
-  collapsed,
-  onToggleCollapse,
 }: {
   pathname: string;
   onNavigate?: () => void;
-  collapsed?: boolean;
-  onToggleCollapse?: () => void;
 }) {
   return (
     <>
       {/* Logo */}
-      <div
-        className={cn(
-          "p-6 pb-4 flex items-center",
-          collapsed ? "justify-center px-3" : "justify-between"
-        )}
-      >
-        {!collapsed && (
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2"
-            onClick={onNavigate}
-          >
-            <Sprout className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold text-text-primary">
-              SeedGift
-            </span>
-          </Link>
-        )}
-        {collapsed && (
-          <Link href="/dashboard" onClick={onNavigate}>
-            <Sprout className="h-7 w-7 text-primary" />
-          </Link>
-        )}
-        {/* Mobile close button */}
-        {onNavigate && !collapsed && (
+      <div className="p-6 pb-4 flex items-center justify-between">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2"
+          onClick={onNavigate}
+        >
+          <Sprout className="h-7 w-7 text-primary" />
+          <span className="text-xl font-bold text-text-primary">SeedGift</span>
+        </Link>
+        {onNavigate && (
           <button
             onClick={onNavigate}
             className="text-text-secondary hover:text-text-primary cursor-pointer"
@@ -73,33 +52,10 @@ function SidebarContent({
             <X className="h-5 w-5" />
           </button>
         )}
-        {/* Desktop collapse/expand toggle (expanded state — sits next to logo) */}
-        {onToggleCollapse && !onNavigate && !collapsed && (
-          <button
-            onClick={onToggleCollapse}
-            className="text-text-secondary hover:text-text-primary cursor-pointer"
-            title="Collapse sidebar"
-          >
-            <PanelLeftClose className="h-4 w-4" />
-          </button>
-        )}
       </div>
 
-      {/* Desktop collapse/expand toggle (collapsed state — separate row under logo) */}
-      {onToggleCollapse && !onNavigate && collapsed && (
-        <div className="flex justify-center pb-2">
-          <button
-            onClick={onToggleCollapse}
-            className="text-text-secondary hover:text-text-primary cursor-pointer p-1.5 rounded-[var(--radius-md)] hover:bg-surface-muted transition-colors"
-            title="Expand sidebar"
-          >
-            <PanelLeftOpen className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
       {/* Navigation */}
-      <nav className={cn("flex-1 space-y-1", collapsed ? "px-2" : "px-3")}>
+      <nav className="flex-1 space-y-1 px-3">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -111,22 +67,14 @@ function SidebarContent({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "group relative flex items-center rounded-[var(--radius-md)] text-sm font-medium transition-colors",
-                collapsed
-                  ? "justify-center px-2 py-2.5"
-                  : "gap-3 px-3 py-2.5",
+                "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary-light text-primary-dark"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-muted"
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && item.label}
-              {collapsed && (
-                <span className="absolute left-full ml-2 px-2.5 py-1 rounded-[var(--radius-sm)] bg-text-primary text-text-inverse text-xs font-medium whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                  {item.label}
-                </span>
-              )}
+              {item.label}
             </Link>
           );
         })}
@@ -140,18 +88,10 @@ function SidebarContent({
             await supabase.auth.signOut();
             window.location.href = "/";
           }}
-          className={cn(
-            "group relative flex items-center rounded-[var(--radius-md)] text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors w-full cursor-pointer",
-            collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"
-          )}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted transition-colors w-full cursor-pointer"
         >
           <LogOut className="h-5 w-5 shrink-0" />
-          {!collapsed && "Sign Out"}
-          {collapsed && (
-            <span className="absolute left-full ml-2 px-2.5 py-1 rounded-[var(--radius-sm)] bg-text-primary text-text-inverse text-xs font-medium whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-              Sign Out
-            </span>
-          )}
+          Sign Out
         </button>
       </div>
     </>
@@ -161,7 +101,6 @@ function SidebarContent({
 export function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopCollapsed, setDesktopCollapsed] = useState(true);
 
   // Close mobile on route change
   useEffect(() => {
@@ -211,26 +150,9 @@ export function Sidebar() {
         />
       </aside>
 
-      {/* Desktop sidebar backdrop */}
-      {!desktopCollapsed && (
-        <div
-          className="hidden md:block fixed inset-0 z-30"
-          onClick={() => setDesktopCollapsed(true)}
-        />
-      )}
-
-      {/* Desktop sidebar */}
-      <aside
-        className={cn(
-          "hidden md:flex fixed left-0 top-0 h-screen bg-surface border-r border-border-light flex-col z-40 transition-all duration-200",
-          desktopCollapsed ? "w-[60px]" : "w-[260px]"
-        )}
-      >
-        <SidebarContent
-          pathname={pathname}
-          collapsed={desktopCollapsed}
-          onToggleCollapse={() => setDesktopCollapsed(!desktopCollapsed)}
-        />
+      {/* Desktop sidebar — always expanded, pushes content (no overlay) */}
+      <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[240px] bg-surface border-r border-border-light flex-col z-40">
+        <SidebarContent pathname={pathname} />
       </aside>
     </>
   );
