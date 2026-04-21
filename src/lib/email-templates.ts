@@ -120,6 +120,92 @@ export function magicLinkEmail({ url }: { url: string }): string {
   `);
 }
 
+export function sentGiftReceiptEmail({
+  giverName,
+  childName,
+  occasion,
+  amount,
+  fundName,
+  recipientEmail,
+  shareUrl,
+  projectedValue,
+}: {
+  giverName: string;
+  childName: string;
+  occasion: string;
+  amount: string;
+  fundName: string;
+  recipientEmail: string;
+  shareUrl: string;
+  projectedValue: string;
+}): string {
+  return layout(`
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">Your SeedGift is on its way, ${esc(giverName)}!</h1>
+    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">We've notified ${esc(recipientEmail)} about your gift for ${esc(childName)}.</p>
+    <div style="background:#E6F9F0;border-radius:8px;padding:20px;margin-bottom:24px;">
+      <table style="width:100%;font-size:15px;color:#1A1A1A;">
+        <tr><td style="padding:6px 0;color:#6B7280;">Gift for</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(childName)}'s ${esc(occasion)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Amount</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(amount)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Invested in</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(fundName)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Sent to</td><td style="padding:6px 0;text-align:right;font-weight:600;">${esc(recipientEmail)}</td></tr>
+      </table>
+    </div>
+    <p style="font-size:15px;color:#1A1A1A;margin:0 0 8px;font-weight:600;">Projected value in 18 years</p>
+    <p style="font-size:28px;color:#00B964;font-weight:700;margin:0 0 24px;">${esc(projectedValue)}</p>
+    <p style="font-size:14px;color:#6B7280;margin:0 0 16px;">You can also share the gift directly with a link:</p>
+    <div style="text-align:center;margin:0 0 24px;">
+      <a href="${shareUrl}" style="display:inline-block;background:#00B964;color:#FFFFFF;font-size:15px;font-weight:600;padding:12px 28px;border-radius:9999px;text-decoration:none;">View the gift →</a>
+    </div>
+    <p style="font-size:13px;color:#9CA3AF;margin:0;word-break:break-all;">${shareUrl}</p>
+  `);
+}
+
+export function sentGiftNotificationEmail({
+  giverName,
+  childName,
+  occasion,
+  amount,
+  fundName,
+  message,
+  shareUrl,
+  projectedValue,
+}: {
+  giverName: string;
+  childName: string;
+  occasion: string;
+  amount: string;
+  fundName: string;
+  message: string | null;
+  shareUrl: string;
+  projectedValue: string;
+}): string {
+  const messageHtml = message
+    ? `<div style="background:#F5F5F0;border-radius:8px;padding:16px;margin:16px 0;font-style:italic;color:#1A1A1A;font-size:15px;line-height:1.5;white-space:pre-wrap;">"${esc(message)}"<p style="font-style:normal;font-size:13px;color:#6B7280;margin:8px 0 0;">— ${esc(giverName)}</p></div>`
+    : "";
+
+  return layout(`
+    <h1 style="font-size:22px;color:#1A1A1A;margin:0 0 8px;">A gift for ${esc(childName)}'s ${esc(occasion)} 🌱</h1>
+    <p style="font-size:16px;color:#6B7280;margin:0 0 24px;">${esc(giverName)} didn't send a toy. They sent something that will grow with ${esc(childName)}.</p>
+    <div style="background:#E6F9F0;border-radius:8px;padding:24px;text-align:center;margin-bottom:16px;">
+      <p style="font-size:14px;color:#009B50;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.05em;">Gift Amount</p>
+      <p style="font-size:36px;font-weight:700;color:#00B964;margin:0;">${esc(amount)}</p>
+      <p style="font-size:14px;color:#009B50;margin:8px 0 0;">Invested in ${esc(fundName)}</p>
+    </div>
+    ${messageHtml}
+    <div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0 24px;">
+      <p style="font-size:14px;color:#6B7280;margin:0 0 4px;">Projected value in 18 years</p>
+      <p style="font-size:28px;color:#1A1A1A;font-weight:700;margin:0;">${esc(projectedValue)}</p>
+      <p style="font-size:12px;color:#9CA3AF;margin:6px 0 0;">Based on the fund's historical average return. Not guaranteed.</p>
+    </div>
+    <div style="text-align:center;margin:0 0 24px;">
+      <a href="${shareUrl}" style="display:inline-block;background:#00B964;color:#FFFFFF;font-size:16px;font-weight:600;padding:14px 40px;border-radius:9999px;text-decoration:none;">View your gift →</a>
+    </div>
+    <div style="background:#F5F5F0;border-radius:8px;padding:16px;">
+      <p style="font-size:13px;color:#6B7280;margin:0;"><strong style="color:#1A1A1A;">What's next?</strong> We'll email you soon with instructions to claim these funds and set up the investment. In the meantime, you can view and share the gift using the link above.</p>
+    </div>
+  `);
+}
+
 export function contactFormEmail({
   name,
   email,
