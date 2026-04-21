@@ -63,6 +63,11 @@ export function Navbar() {
 
           {/* Desktop auth buttons */}
           <div className="hidden lg:flex items-center gap-3">
+            <Link href="/send-gift">
+              <Button variant="secondary" size="sm">
+                Send a Gift
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 Sign In
@@ -106,13 +111,18 @@ export function Navbar() {
               </a>
             ))}
             <div className="pt-2 flex flex-col gap-2 px-3">
+              <Link href="/send-gift">
+                <Button size="sm" className="w-full">
+                  Send a Gift
+                </Button>
+              </Link>
               <Link href="/login">
                 <Button variant="secondary" size="sm" className="w-full">
                   Sign In
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button size="sm" className="w-full">
+                <Button variant="ghost" size="sm" className="w-full">
                   Get Started
                 </Button>
               </Link>

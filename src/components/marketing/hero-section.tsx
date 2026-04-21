@@ -18,20 +18,28 @@ export function HeroSection() {
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
-            Skip the plastic toys and forgotten gift cards. Give your child the
-            gift that lasts — money they can save and invest for the future.
+            Skip the plastic toys and forgotten gift cards. Give a gift that
+            lasts — money that parents can save and invest for their child's
+            future.
           </p>
 
-          {/* CTA */}
-          <Link href="/signup">
-            <Button size="lg" className="text-lg px-10 py-4">
-              Create a Gift Page
-            </Button>
-          </Link>
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+            <Link href="/send-gift">
+              <Button size="lg" className="text-lg px-10 py-4">
+                Send a Gift
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button variant="secondary" size="lg" className="text-lg px-10 py-4">
+                Create a Gift Page
+              </Button>
+            </Link>
+          </div>
 
-          {/* Subtext under CTA */}
+          {/* Subtext under CTAs */}
           <p className="mt-4 text-sm text-text-secondary">
-            Free to create. No account needed to give.
+            No account needed to send. Free to create a page.
           </p>
         </div>
 

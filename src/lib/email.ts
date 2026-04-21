@@ -3,6 +3,8 @@ import {
   giftReceiptEmail,
   newGiftNotificationEmail,
   thankYouEmail,
+  sentGiftReceiptEmail,
+  sentGiftNotificationEmail,
 } from "@/lib/email-templates";
 
 let _resend: Resend | null = null;
@@ -59,6 +61,82 @@ export async function sendNewGiftNotification({
     to: parentEmail,
     subject: `${giverName} just sent a gift for ${childName}!`,
     html: newGiftNotificationEmail({ parentName, giverName, childName, amount, note }),
+  });
+}
+
+export async function sendSentGiftReceipt({
+  giverEmail,
+  giverName,
+  childName,
+  occasion,
+  amount,
+  fundName,
+  recipientEmail,
+  shareUrl,
+  projectedValue,
+}: {
+  giverEmail: string;
+  giverName: string;
+  childName: string;
+  occasion: string;
+  amount: string;
+  fundName: string;
+  recipientEmail: string;
+  shareUrl: string;
+  projectedValue: string;
+}) {
+  await getResend().emails.send({
+    from: FROM,
+    to: giverEmail,
+    subject: `Your SeedGift for ${childName}'s ${occasion} is on its way!`,
+    html: sentGiftReceiptEmail({
+      giverName,
+      childName,
+      occasion,
+      amount,
+      fundName,
+      recipientEmail,
+      shareUrl,
+      projectedValue,
+    }),
+  });
+}
+
+export async function sendSentGiftNotification({
+  recipientEmail,
+  giverName,
+  childName,
+  occasion,
+  amount,
+  fundName,
+  message,
+  shareUrl,
+  projectedValue,
+}: {
+  recipientEmail: string;
+  giverName: string;
+  childName: string;
+  occasion: string;
+  amount: string;
+  fundName: string;
+  message: string | null;
+  shareUrl: string;
+  projectedValue: string;
+}) {
+  await getResend().emails.send({
+    from: FROM,
+    to: recipientEmail,
+    subject: `${giverName} sent a SeedGift for ${childName}`,
+    html: sentGiftNotificationEmail({
+      giverName,
+      childName,
+      occasion,
+      amount,
+      fundName,
+      message,
+      shareUrl,
+      projectedValue,
+    }),
   });
 }
 

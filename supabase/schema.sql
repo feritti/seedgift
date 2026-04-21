@@ -42,6 +42,14 @@ CREATE TABLE IF NOT EXISTS gifts (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Verification tokens for magic link authentication (NextAuth adapter)
+CREATE TABLE IF NOT EXISTS verification_tokens (
+  identifier TEXT NOT NULL,
+  token TEXT NOT NULL,
+  expires TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+
 -- Deduplicated marketing email list
 CREATE TABLE IF NOT EXISTS giver_emails (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -51,11 +59,46 @@ CREATE TABLE IF NOT EXISTS giver_emails (
   gift_count INTEGER DEFAULT 1
 );
 
+-- Sent gifts (giver-initiated: no gift page required; recipient claims by email later)
+CREATE TABLE IF NOT EXISTS sent_gifts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT UNIQUE NOT NULL,
+
+  giver_name TEXT NOT NULL,
+  giver_email TEXT NOT NULL,
+
+  recipient_email TEXT NOT NULL,
+  recipient_name TEXT,
+  child_name TEXT NOT NULL,
+  occasion TEXT NOT NULL,
+
+  amount_cents INTEGER NOT NULL,
+  fund_ticker TEXT NOT NULL,
+  fund_name TEXT NOT NULL,
+  message TEXT,
+
+  stripe_payment_id TEXT,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
+
+  -- Claim (Phase 2)
+  claimed_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  claimed_at TIMESTAMPTZ,
+  fund_ticker_final TEXT,
+  paid_out_at TIMESTAMPTZ,
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_gift_pages_user_id ON gift_pages(user_id);
 CREATE INDEX IF NOT EXISTS idx_gift_pages_slug ON gift_pages(slug);
 CREATE INDEX IF NOT EXISTS idx_gifts_gift_page_id ON gifts(gift_page_id);
 CREATE INDEX IF NOT EXISTS idx_gifts_status ON gifts(status);
+CREATE INDEX IF NOT EXISTS idx_verification_tokens_expires ON verification_tokens(expires);
+CREATE INDEX IF NOT EXISTS idx_sent_gifts_slug ON sent_gifts(slug);
+CREATE INDEX IF NOT EXISTS idx_sent_gifts_recipient_email ON sent_gifts(recipient_email);
+CREATE INDEX IF NOT EXISTS idx_sent_gifts_status ON sent_gifts(status);
 
 -- Updated at trigger for gift_pages
 CREATE OR REPLACE FUNCTION update_updated_at()
