@@ -13,11 +13,15 @@ import {
   LogOut,
   Menu,
   X,
+  ShieldCheck,
+  type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
 
-const navItems = [
+type NavItem = { label: string; href: string; icon: LucideIcon };
+
+const baseNavItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Gift Pages", href: "/gift-pages", icon: Gift },
   { label: "Gifts", href: "/gifts", icon: Heart },
@@ -25,12 +29,20 @@ const navItems = [
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
+const adminNavItem: NavItem = {
+  label: "Admin",
+  href: "/admin",
+  icon: ShieldCheck,
+};
+
 function SidebarContent({
   pathname,
   onNavigate,
+  navItems,
 }: {
   pathname: string;
   onNavigate?: () => void;
+  navItems: NavItem[];
 }) {
   return (
     <>
@@ -98,9 +110,10 @@ function SidebarContent({
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navItems = isAdmin ? [...baseNavItems, adminNavItem] : baseNavItems;
 
   // Close mobile on route change
   useEffect(() => {
@@ -147,12 +160,13 @@ export function Sidebar() {
         <SidebarContent
           pathname={pathname}
           onNavigate={() => setMobileOpen(false)}
+          navItems={navItems}
         />
       </aside>
 
       {/* Desktop sidebar — always expanded, pushes content (no overlay) */}
       <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[240px] bg-surface border-r border-border-light flex-col z-40">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} navItems={navItems} />
       </aside>
     </>
   );
