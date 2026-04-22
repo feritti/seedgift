@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, Inter } from "next/font/google";
 import "./globals.css";
+import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
 
 const dmSerif = DM_Serif_Display({
   variable: "--font-dm-serif",
@@ -40,7 +41,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${dmSerif.variable} ${inter.variable}`}>
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        <ImpersonationBanner />
+        {children}
+      </body>
     </html>
   );
 }
