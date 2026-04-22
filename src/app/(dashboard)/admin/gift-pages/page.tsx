@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { PauseToggle } from "@/components/admin/pause-toggle";
 import { listGiftPages } from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/shared/utils/growth-calculator";
 
@@ -132,14 +133,17 @@ export default async function AdminGiftPagesPage({
                         {formatDate(p.createdAt)}
                       </td>
                       <td className="py-3 pr-0 text-right">
-                        <Link
-                          href={`/gift/${p.slug}`}
-                          target="_blank"
-                          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                        >
-                          View
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-3">
+                          <Link
+                            href={`/gift/${p.slug}`}
+                            target="_blank"
+                            className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                          >
+                            View
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                          <PauseToggle pageId={p.id} status={p.status} />
+                        </div>
                       </td>
                     </tr>
                   ))}

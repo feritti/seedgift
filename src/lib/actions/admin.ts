@@ -648,6 +648,10 @@ export interface AdminGiftRow {
   stripePaymentId: string | null;
   createdAt: string;
   href: string;
+  /** true iff this is a gift-page donation whose parent has Stripe Connect
+   *  active — a refund must reverse the transfer as well. Always false for
+   *  sent_gifts (platform-only charges in Phase 1). */
+  isDestinationCharge: boolean;
 }
 
 export async function listAllGifts(opts: {
@@ -695,25 +699,49 @@ export async function listAllGifts(opts: {
   const giftRows = giftsRes.data ?? [];
   const sentRows = sentRes.data ?? [];
 
-  // Look up page info for gift rows so we can render a recipient label.
+  // Look up page info for gift rows so we can render a recipient label + detect
+  // whether the associated parent is Stripe-Connect onboarded (controls refund
+  // strategy).
   const giftPageIds = Array.from(
     new Set(giftRows.map((g) => g.gift_page_id).filter(Boolean))
   );
   const { data: pages } = giftPageIds.length
     ? await db
         .from("gift_pages")
-        .select("id, slug, child_name, event_name")
+        .select(
+          "id, slug, child_name, event_name, user_id, users!inner(stripe_account_id, stripe_onboarded)"
+        )
         .in("id", giftPageIds)
     : { data: [] };
+
+  type JoinedPage = {
+    id: string;
+    slug: string;
+    child_name: string;
+    event_name: string;
+    user_id: string;
+    users:
+      | { stripe_account_id: string | null; stripe_onboarded: boolean | null }
+      | { stripe_account_id: string | null; stripe_onboarded: boolean | null }[]
+      | null;
+  };
   const pageById = new Map(
-    (pages ?? []).map((p) => [
-      p.id,
-      {
-        slug: p.slug,
-        childName: p.child_name,
-        eventName: p.event_name,
-      },
-    ])
+    ((pages ?? []) as JoinedPage[]).map((p) => {
+      const ownerRaw = p.users;
+      const owner = Array.isArray(ownerRaw) ? ownerRaw[0] : ownerRaw;
+      const isDestinationCharge = !!(
+        owner?.stripe_onboarded && owner?.stripe_account_id
+      );
+      return [
+        p.id,
+        {
+          slug: p.slug,
+          childName: p.child_name,
+          eventName: p.event_name,
+          isDestinationCharge,
+        },
+      ];
+    })
   );
 
   const unified: AdminGiftRow[] = [
@@ -732,6 +760,7 @@ export async function listAllGifts(opts: {
         stripePaymentId: g.stripe_payment_id,
         createdAt: g.created_at,
         href: p ? `/gift/${p.slug}` : "/admin/gifts",
+        isDestinationCharge: p?.isDestinationCharge ?? false,
       };
     }),
     ...sentRows.map(
@@ -746,6 +775,7 @@ export async function listAllGifts(opts: {
         stripePaymentId: s.stripe_payment_id,
         createdAt: s.created_at,
         href: `/g/${s.slug}`,
+        isDestinationCharge: false,
       })
     ),
   ];
@@ -761,6 +791,58 @@ export async function listAllGifts(opts: {
     rows: sliced,
     total: unified.length,
   };
+}
+
+// ── Audit log ────────────────────────────────────────────────────────
+
+export interface AdminAuditRow {
+  id: string;
+  adminEmail: string;
+  action: string;
+  subjectType: string | null;
+  subjectId: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export async function listAuditEvents(opts: {
+  limit?: number;
+  offset?: number;
+}): Promise<{ rows: AdminAuditRow[]; total: number }> {
+  await requireAdminSession();
+  const db = createServerClient();
+  const limit = opts.limit ?? 100;
+  const offset = opts.offset ?? 0;
+
+  const { data, count } = await db
+    .from("admin_audit")
+    .select("id, admin_email, action, subject_type, subject_id, metadata, created_at", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  type Raw = {
+    id: string;
+    admin_email: string;
+    action: string;
+    subject_type: string | null;
+    subject_id: string | null;
+    metadata: Record<string, unknown> | null;
+    created_at: string;
+  };
+
+  const rows: AdminAuditRow[] = (data ?? []).map((r: Raw) => ({
+    id: r.id,
+    adminEmail: r.admin_email,
+    action: r.action,
+    subjectType: r.subject_type,
+    subjectId: r.subject_id,
+    metadata: r.metadata,
+    createdAt: r.created_at,
+  }));
+
+  return { rows, total: count ?? 0 };
 }
 
 // ── Stripe ───────────────────────────────────────────────────────────

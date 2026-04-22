@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, ArrowLeft, CheckCircle, Circle } from "lucide-react";
+import { Search, ArrowLeft, CheckCircle, Circle, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { listUsers } from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/shared/utils/growth-calculator";
@@ -38,16 +38,25 @@ export default async function AdminUsersPage({
           </p>
         </div>
 
-        <form method="GET" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary" />
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Search by email or name..."
-            className="pl-9 pr-4 py-2 rounded-[var(--radius-md)] border border-border bg-surface text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary min-w-[280px]"
-          />
-        </form>
+        <div className="flex items-center gap-2 flex-wrap">
+          <form method="GET" className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary" />
+            <input
+              type="search"
+              name="q"
+              defaultValue={q}
+              placeholder="Search by email or name..."
+              className="pl-9 pr-4 py-2 rounded-[var(--radius-md)] border border-border bg-surface text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary min-w-[280px]"
+            />
+          </form>
+          <a
+            href="/api/admin/export/users"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] text-sm text-text-primary border border-border hover:bg-surface-muted transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </a>
+        </div>
       </div>
 
       <Card>
