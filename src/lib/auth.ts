@@ -2,6 +2,20 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createServerClient as createAdminClient } from "@/lib/db";
 
+/**
+ * Inlined to avoid a circular import with src/lib/admin.ts, which needs
+ * to import getSession. Kept in sync with isAdminEmail() there.
+ */
+function checkAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const list = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (list.length === 0) return false;
+  return list.includes(email.toLowerCase());
+}
+
 export type Session = {
   user: {
     id: string;
@@ -10,6 +24,7 @@ export type Session = {
     image: string | null;
     stripeOnboarded: boolean;
   };
+  isAdmin: boolean;
 };
 
 /** Cached per-request to avoid redundant Supabase calls in server components */
@@ -43,5 +58,6 @@ export const getSession = cache(async (): Promise<Session | null> => {
         null,
       stripeOnboarded: profile?.stripe_onboarded ?? false,
     },
+    isAdmin: checkAdmin(user.email),
   };
 });
