@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { ResendButton } from "@/components/admin/resend-button";
 import { getUserDetail } from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/shared/utils/growth-calculator";
 
@@ -182,6 +183,20 @@ export default async function AdminUserDetailPage({
                       Stripe
                       <ExternalLink className="h-3 w-3" />
                     </a>
+                  )}
+                  {g.status === "completed" && (
+                    <div className="flex items-center gap-3">
+                      <ResendButton
+                        rowId={g.id}
+                        kind="gift_receipt"
+                        label="Receipt"
+                      />
+                      <ResendButton
+                        rowId={g.id}
+                        kind="gift_notification"
+                        label="Notif"
+                      />
+                    </div>
                   )}
                 </div>
               ))}

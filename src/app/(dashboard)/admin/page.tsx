@@ -173,7 +173,19 @@ export default async function AdminOverviewPage() {
                 <AdminLink href="/admin/gift-pages" label="All gift pages" />
                 <AdminLink href="/admin/gifts" label="All gifts" />
                 <AdminLink href="/admin/stripe" label="Stripe — live data" />
+                <AdminLink href="/admin/audit" label="Audit log" />
               </nav>
+              <div className="mt-4 pt-4 border-t border-border-light space-y-1">
+                <p className="text-xs uppercase tracking-wide text-text-secondary mb-2">
+                  Export CSV
+                </p>
+                <ExportLink href="/api/admin/export/users" label="Users" />
+                <ExportLink href="/api/admin/export/gifts" label="Gifts" />
+                <ExportLink
+                  href="/api/admin/export/sent-gifts"
+                  label="Sent gifts"
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -191,5 +203,17 @@ function AdminLink({ href, label }: { href: string; label: string }) {
       <span>{label}</span>
       <ArrowRight className="h-4 w-4 text-text-secondary" />
     </Link>
+  );
+}
+
+function ExportLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      className="flex items-center justify-between px-3 py-1.5 rounded-[var(--radius-md)] text-sm text-text-primary hover:bg-surface-muted transition-colors"
+    >
+      <span>{label}</span>
+      <span className="text-xs text-text-secondary">.csv</span>
+    </a>
   );
 }

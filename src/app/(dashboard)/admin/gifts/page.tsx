@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, AlertCircle } from "lucide-react";
+import { ArrowLeft, ExternalLink, AlertCircle, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { RefundButton } from "@/components/admin/refund-dialog";
+import { ResendButton } from "@/components/admin/resend-button";
 import {
   listAllGifts,
   type AdminGiftSource,
@@ -50,19 +52,28 @@ export default async function AdminGiftsPage({
 
   return (
     <div>
-      <div className="mb-6">
-        <Link
-          href="/admin"
-          className="text-sm text-text-secondary hover:text-text-primary inline-flex items-center gap-1 mb-2"
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <Link
+            href="/admin"
+            className="text-sm text-text-secondary hover:text-text-primary inline-flex items-center gap-1 mb-2"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Admin
+          </Link>
+          <h1 className="text-3xl text-text-primary mb-1">Gifts</h1>
+          <p className="text-text-secondary">
+            Unified view — both gift-page donations and giver-initiated sent
+            gifts. Amber dot = pending &gt; 2h (likely stuck).
+          </p>
+        </div>
+        <a
+          href="/api/admin/export/gifts"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] text-sm text-text-primary border border-border hover:bg-surface-muted transition-colors"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Admin
-        </Link>
-        <h1 className="text-3xl text-text-primary mb-1">Gifts</h1>
-        <p className="text-text-secondary">
-          Unified view — both gift-page donations and giver-initiated sent
-          gifts. Amber dot = pending &gt; 2h (likely stuck).
-        </p>
+          <Download className="h-4 w-4" />
+          Export CSV
+        </a>
       </div>
 
       {/* Filters */}
@@ -185,25 +196,63 @@ export default async function AdminGiftsPage({
                           {formatDate(g.createdAt)}
                         </td>
                         <td className="py-3 pr-0 text-right whitespace-nowrap">
-                          <Link
-                            href={g.href}
-                            target="_blank"
-                            className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                          >
-                            View
-                            <ExternalLink className="h-3 w-3" />
-                          </Link>
-                          {g.stripePaymentId && (
-                            <a
-                              href={`https://dashboard.stripe.com/payments/${g.stripePaymentId}`}
+                          <div className="flex items-center justify-end gap-3 flex-wrap">
+                            <Link
+                              href={g.href}
                               target="_blank"
-                              rel="noreferrer"
-                              className="ml-3 text-xs text-primary hover:underline inline-flex items-center gap-1"
+                              className="text-xs text-primary hover:underline inline-flex items-center gap-1"
                             >
-                              Stripe
+                              View
                               <ExternalLink className="h-3 w-3" />
-                            </a>
-                          )}
+                            </Link>
+                            {g.stripePaymentId && (
+                              <a
+                                href={`https://dashboard.stripe.com/payments/${g.stripePaymentId}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                              >
+                                Stripe
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                            {g.status === "completed" && (
+                              <>
+                                <ResendButton
+                                  rowId={g.id}
+                                  kind={
+                                    g.source === "sent_gift"
+                                      ? "sent_gift_receipt"
+                                      : "gift_receipt"
+                                  }
+                                  label="Receipt"
+                                />
+                                <ResendButton
+                                  rowId={g.id}
+                                  kind={
+                                    g.source === "sent_gift"
+                                      ? "sent_gift_notification"
+                                      : "gift_notification"
+                                  }
+                                  label="Notif"
+                                />
+                                {g.stripePaymentId && (
+                                  <RefundButton
+                                    context={{
+                                      id: g.id,
+                                      source: g.source,
+                                      amountCents: g.amountCents,
+                                      giverName: g.giverName,
+                                      giverEmail: g.giverEmail,
+                                      recipientLabel: g.recipientLabel,
+                                      stripePaymentId: g.stripePaymentId,
+                                      isDestinationCharge: g.isDestinationCharge,
+                                    }}
+                                  />
+                                )}
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

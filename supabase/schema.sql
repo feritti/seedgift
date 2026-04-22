@@ -90,6 +90,17 @@ CREATE TABLE IF NOT EXISTS sent_gifts (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Admin audit log (append-only record of every admin write action)
+CREATE TABLE IF NOT EXISTS admin_audit (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  admin_email TEXT NOT NULL,
+  action TEXT NOT NULL,             -- e.g. 'gift_refunded', 'gift_page_paused', 'export_gifts'
+  subject_type TEXT,                -- 'gift' | 'sent_gift' | 'gift_page' | 'user' | null for exports
+  subject_id UUID,
+  metadata JSONB,                   -- free-form context (amount_cents, stripe_refund_id, etc.)
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_gift_pages_user_id ON gift_pages(user_id);
 CREATE INDEX IF NOT EXISTS idx_gift_pages_slug ON gift_pages(slug);
@@ -99,6 +110,9 @@ CREATE INDEX IF NOT EXISTS idx_verification_tokens_expires ON verification_token
 CREATE INDEX IF NOT EXISTS idx_sent_gifts_slug ON sent_gifts(slug);
 CREATE INDEX IF NOT EXISTS idx_sent_gifts_recipient_email ON sent_gifts(recipient_email);
 CREATE INDEX IF NOT EXISTS idx_sent_gifts_status ON sent_gifts(status);
+CREATE INDEX IF NOT EXISTS idx_admin_audit_created_at ON admin_audit(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_admin_audit_admin_email ON admin_audit(admin_email);
+CREATE INDEX IF NOT EXISTS idx_admin_audit_subject ON admin_audit(subject_type, subject_id);
 
 -- Updated at trigger for gift_pages
 CREATE OR REPLACE FUNCTION update_updated_at()
