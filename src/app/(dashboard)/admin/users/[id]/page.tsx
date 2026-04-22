@@ -12,7 +12,10 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { ResendButton } from "@/components/admin/resend-button";
+import { ImpersonateButton } from "@/components/admin/impersonate-button";
 import { getUserDetail } from "@/lib/actions/admin";
+import { getSession } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/admin";
 import { formatCurrency, formatDate } from "@/shared/utils/growth-calculator";
 
 export const dynamic = "force-dynamic";
@@ -23,24 +26,44 @@ export default async function AdminUserDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const detail = await getUserDetail(id);
+  const [detail, viewerSession] = await Promise.all([
+    getUserDetail(id),
+    getSession(),
+  ]);
   if (!detail) notFound();
   const { user, giftPages, recentGifts, incomingSentGifts } = detail;
+  const targetIsAdmin = isAdminEmail(user.email);
+  const targetIsSelf =
+    viewerSession?.user.email.toLowerCase() === user.email.toLowerCase();
+  const canImpersonate = !targetIsAdmin && !targetIsSelf;
 
   return (
     <div>
-      <div className="mb-6">
-        <Link
-          href="/admin/users"
-          className="text-sm text-text-secondary hover:text-text-primary inline-flex items-center gap-1 mb-2"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Users
-        </Link>
-        <h1 className="text-3xl text-text-primary mb-1">
-          {user.name ?? user.email}
-        </h1>
-        <p className="text-text-secondary">{user.email}</p>
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <Link
+            href="/admin/users"
+            className="text-sm text-text-secondary hover:text-text-primary inline-flex items-center gap-1 mb-2"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Users
+          </Link>
+          <h1 className="text-3xl text-text-primary mb-1">
+            {user.name ?? user.email}
+          </h1>
+          <p className="text-text-secondary">{user.email}</p>
+          {targetIsAdmin && (
+            <p className="text-xs text-text-secondary mt-1">
+              This user is an admin — impersonation disabled.
+            </p>
+          )}
+        </div>
+        {canImpersonate && (
+          <ImpersonateButton
+            targetUserId={user.id}
+            targetEmail={user.email}
+          />
+        )}
       </div>
 
       {/* Profile card */}
